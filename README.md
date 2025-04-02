@@ -1,1 +1,1 @@
-![문제정의서 요약](./assets/문제정의서.png)
+<img src="./assets/문제정의서.png" alt="문제정의서 요약" width="70%" />
