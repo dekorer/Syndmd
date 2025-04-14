@@ -6,7 +6,7 @@ source_path = "C:/Users/pc/Desktop/빈집마크다운.txt"
 target_path = "C:/Users/pc/Desktop/빈집마크다운.py"
 output_path = "C:/Users/pc/Desktop/텍스트변환.txt"
 
-# 1..txt 파일을 함수로 감싸기
+# txt 파일을 함수로 감싸기
 with open(source_path, 'r', encoding='utf-8') as f:
     content = f.read()
 
@@ -18,20 +18,20 @@ with open(target_path, 'w', encoding='utf-8') as f:
 
 print("변환 완료: .txt → .py")
 
-# 2.AST로 docstring 추출
+# AST로 docstring 추출
 with open(target_path, 'r', encoding='utf-8') as f:
     data = f.read()
 
 tree = ast.parse(data)
 docstrings = [ast.get_docstring(n) for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)]
 
-# 3.공백 정리
+# 공백 정리
 processed = []
 for doc in docstrings:
     cleaned = textwrap.dedent(doc).strip()
     processed.append(cleaned)
 
-# 4.Markdown AST 파서
+# Markdown AST 파서
 markdown_parser = mistune.create_markdown(renderer='ast')
 
 # 텍스트 추출
@@ -76,14 +76,14 @@ def traverse_ast(nodes, lines, indent=0):
         if 'children' in node:
             traverse_ast(node['children'], lines, indent)
 
-# 5. 실행 및 결과 저장
+# 실행 및 결과 저장
 for doc in processed:
     ast_tree = markdown_parser(doc)
     lines = doc.splitlines()
     output_lines.append("\n 분석 결과:")
     traverse_ast(ast_tree, lines)
 
-# 6. 결과 파일로 저장
+# 결과 파일로 저장
 with open(output_path, 'w', encoding='utf-8') as f:
     f.write('\n'.join(output_lines))
 
