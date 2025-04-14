@@ -1,0 +1,137 @@
+change_title() called     
+빈집 문제 해결을 위한 방안
+change_title() called
+1. 빈집 문제의 개요
+change_title() called
+2. 빈집 문제의 주요 원인
+change_bullet() called
+change_indent() called
+[strong]인구 감소[strong]: 저출산 및 고령화로 인해 주택 수요 감소
+change_bullet() called
+change_indent() called
+[strong]도시화[strong]: 지방의 인구가 대도시로 집중되면서 빈집 발생 증가
+change_bullet() called
+change_indent() called
+[strong]경제적 요인[strong]: 부동산 경기 침체 및 주택 유지보수 비용 증가
+change_bullet() called
+change_indent() called
+[strong]법적·행정적 문제[strong]: 소유주 부재, 상속 문제 등으로 인해 관리가 어려움
+change_title() called
+3. 빈집 문제 해결 방안
+제목 h3: 3.1. 정책적 지원 강화
+change_bullet() called
+[strong]빈집 실태 조사 및 데이터베이스 구축[strong]전국 단위의 빈집 데이터베이스를 구축하여 체계적으로 관리빈집 정보를 시민과 기업에 공개하여 활용 가능하도록 함 
+change_bullet() called
+change_indent() called
+전국 단위의 빈집 데이터베이스를 구축하여 체계적으로 관리
+change_bullet() called
+change_indent() called
+빈집 정보를 시민과 기업에 공개하여 활용 가능하도록 함
+change_bullet() called
+[strong]빈집 정비 및 철거 지원[strong]노후 빈집 철거 비용 지원철거 후 공공시설, 주차장, 공원 등으로 활용
+change_bullet() called
+change_indent() called
+노후 빈집 철거 비용 지원
+change_bullet() called
+change_indent() called
+철거 후 공공시설, 주차장, 공원 등으로 활용
+change_bullet() called
+[strong]세제 혜택 제공[strong]빈집 소유주가 개보수 후 임대·매매할 경우 세금 감면장기 방치된 빈집에 대한 과세 강화로 활용 유도
+change_bullet() called
+change_indent() called
+빈집 소유주가 개보수 후 임대·매매할 경우 세금 감면
+change_bullet() called
+change_indent() called
+장기 방치된 빈집에 대한 과세 강화로 활용 유도
+change_bullet() called
+change_indent() called
+전국 단위의 빈집 데이터베이스를 구축하여 체계적으로 관리
+change_bullet() called
+change_indent() called
+빈집 정보를 시민과 기업에 공개하여 활용 가능하도록 함
+change_bullet() called
+change_indent() called
+노후 빈집 철거 비용 지원
+change_bullet() called
+change_indent() called
+철거 후 공공시설, 주차장, 공원 등으로 활용
+change_bullet() called
+change_indent() called
+빈집 소유주가 개보수 후 임대·매매할 경우 세금 감면
+change_bullet() called
+change_indent() called
+장기 방치된 빈집에 대한 과세 강화로 활용 유도
+제목 h3: 3.2. 빈집 활용 방안
+change_bullet() called
+[strong]청년 및 신혼부부 주거 지원[strong]리모델링을 통해 저렴한 임대주택으로 전환공공기관과 협력하여 사회적 주택으로 운영
+change_bullet() called
+change_indent() called
+리모델링을 통해 저렴한 임대주택으로 전환
+change_bullet() called
+change_indent() called
+공공기관과 협력하여 사회적 주택으로 운영
+change_bullet() called
+[strong]지역 공동체 공간 조성[strong]빈집을 지역 커뮤니티 공간(카페, 도서관, 복지관 등)으로 변환문화예술 공간, 스타트업 창업 공간으로 활용
+change_bullet() called
+change_indent() called
+빈집을 지역 커뮤니티 공간(카페, 도서관, 복지관 등)으로 변환
+change_bullet() called
+change_indent() called
+문화예술 공간, 스타트업 창업 공간으로 활용
+change_bullet() called
+[strong]스마트팜 및 도시 농업 시설로 활용[strong]도심 빈집을 활용하여 실내 농업 및 스마트팜 조성지역 주민들과 협력하여 친환경 생산 및 일자리 창출
+change_bullet() called
+change_indent() called
+도심 빈집을 활용하여 실내 농업 및 스마트팜 조성
+change_bullet() called
+change_indent() called
+지역 주민들과 협력하여 친환경 생산 및 일자리 창출
+change_bullet() called
+change_indent() called
+리모델링을 통해 저렴한 임대주택으로 전환
+change_bullet() called
+change_indent() called
+공공기관과 협력하여 사회적 주택으로 운영
+change_bullet() called
+change_indent() called
+빈집을 지역 커뮤니티 공간(카페, 도서관, 복지관 등)으로 변환
+change_bullet() called
+change_indent() called
+문화예술 공간, 스타트업 창업 공간으로 활용
+change_bullet() called
+change_indent() called
+도심 빈집을 활용하여 실내 농업 및 스마트팜 조성
+change_bullet() called
+change_indent() called
+지역 주민들과 협력하여 친환경 생산 및 일자리 창출
+제목 h3: 3.3. 민관 협력 강화
+change_bullet() called
+[strong]기업 및 사회적 경제 조직과 협력[strong]민간 기업이 빈집을 활용한 리모델링 사업에 참여하도록 장려사회적 기업 및 비영리 단체와 협력하여 공익적 활용        
+change_bullet() called
+change_indent() called
+민간 기업이 빈집을 활용한 리모델링 사업에 참여하도록 장려
+change_bullet() called
+change_indent() called
+사회적 기업 및 비영리 단체와 협력하여 공익적 활용
+change_bullet() called
+[strong]지방자치단체의 적극적 개입[strong]지역 특성에 맞는 빈집 활용 모델 개발공공-민간 협력을 통한 재생 사업 추진
+change_bullet() called
+change_indent() called
+지역 특성에 맞는 빈집 활용 모델 개발
+change_bullet() called
+change_indent() called
+공공-민간 협력을 통한 재생 사업 추진
+change_bullet() called
+change_indent() called
+민간 기업이 빈집을 활용한 리모델링 사업에 참여하도록 장려
+change_bullet() called
+change_indent() called
+사회적 기업 및 비영리 단체와 협력하여 공익적 활용
+change_bullet() called
+change_indent() called
+지역 특성에 맞는 빈집 활용 모델 개발
+change_bullet() called
+change_indent() called
+공공-민간 협력을 통한 재생 사업 추진
+change_title() called
+4. 결론
