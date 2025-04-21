@@ -6,13 +6,6 @@ def convert_md_to_hwp(md_text, output_path):
     writer = HwpWriter()
 
     for kind, content in parsed_blocks:
-        if kind == "heading":
-            writer.insert_paragraph(content, bold=True)
-        elif kind == "bullet":
-            writer.insert_paragraph("• " + content)
-        elif kind == "hr":
-            writer.insert_paragraph(content)
-        else:
-            writer.insert_paragraph(content)
+        writer.write_block(kind, content)
     
-    writer.save(output_path)    
+    writer.save(output_path)
