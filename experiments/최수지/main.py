@@ -4,7 +4,7 @@ from converter import convert_md_to_hwp
 
 
 def load_markdown(source):
-    """파일 경로면 파일 읽기, 아니면 직접 마크다운 문자열로 처리."""
+    # 파일 경로면 파일 읽기, 아니면 직접 마크다운 문자열로 처리
     if os.path.exists(source):
         try:
             with open(source, "r", encoding="utf-8") as f:
@@ -37,5 +37,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
