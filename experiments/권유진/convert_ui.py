@@ -1,3 +1,5 @@
+##convert_ui.py와 app_ui.py는 같은 파일에 위치(app_ui.py파일은 app_ui파일을 pyside6-uic 사용하여 py파일로 변환한 것
+
 from PySide6.QtWidgets import QApplication, QMainWindow
 import sys
 from app_ui import Ui_MainWindow 
