@@ -1,4 +1,4 @@
-##convert_ui.py와 app_ui.py는 같은 파일에 위치(app_ui.py파일은 app_ui파일을 pyside6-uic 사용하여 py파일로 변환한 것
+##convert_ui.py와 app_ui.py는 같은 파일에 위치(app_ui.py파일은 app_ui파일을 pyside6-uic 사용하여 py파일로 변환한 것(convert_ui가 main)
 
 from PySide6.QtWidgets import QApplication, QMainWindow
 import sys
@@ -12,7 +12,7 @@ class WindowClass(QMainWindow):
 
         # QAction 연결
         self.ui.action_open.triggered.connect(self.openFunction)
-        ##self.ui.action_save.triggered.connect(self.saveFunction)
+        self.ui.action_save.triggered.connect(self.saveFunction)
 
         # 버튼 클릭 시 함수 연결
         self.ui.pushButton.clicked.connect(self.on_click)
@@ -20,8 +20,8 @@ class WindowClass(QMainWindow):
     def openFunction(self):
         print("Open function executed!")
 
-   ## def saveFunction(self):
-        ##print("Save function executed!")
+    def saveFunction(self):
+        print("Save function executed!")
 
     def on_click(self):
         print("버튼이 눌렸습니다.")
