@@ -15,28 +15,32 @@ class HwpWriter:
         else:
             print(f"템플릿 파일이 존재하지 않습니다: {template_path}")
 
+    def flatten_text(self, content_list):
+        return ''.join(content_list) if isinstance(content_list, list) else str(content_list)
+
     def write_all(self, parsed_blocks):
         for block in parsed_blocks:
-            if block[0] == 'heading':
+            block_type = block[0]
+            if block_type == 'heading':
                 level = block[1]
-                content = block[2]
+                content = self.flatten_text(block[2])
                 if 1 <= level <= 3:
                     self.insert_template(rf"C:\Users\Suji\Desktop\제목{level}.hwp")
                     field_name = f"heading{level}"
                     self.hwp.MoveToField(field_name)
                     self.hwp.PutFieldText(field_name, content)
 
-            elif block[0] == 'list':
+            elif block_type == 'list':
                 level = block[1]
-                content = block[2]
+                content = self.flatten_text(block[2])
                 if 1 <= level <= 4:
                     self.insert_template(rf"C:\Users\Suji\Desktop\리스트{level}.hwp")
                     field_name = f"list{level}"
                     self.hwp.MoveToField(field_name)
                     self.hwp.PutFieldText(field_name, content)
-            
-            elif block[0] == 'paragraph':
-                content = block[1]
+
+            elif block_type == 'paragraph':
+                content = self.flatten_text(block[1])
                 self.insert_template(r"C:\Users\Suji\Desktop\문장.hwp")
                 self.hwp.MoveToField("paragraph")
                 self.hwp.PutFieldText("paragraph", content)
