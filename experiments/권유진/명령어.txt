@@ -1,0 +1,3 @@
+pyside6-uic app.ui -o app_ui.py
+
+pyside6-uic find.ui -o find.py
