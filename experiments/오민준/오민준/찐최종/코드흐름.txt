@@ -1,0 +1,6 @@
+1. 사용자가 md 입력 제공
+2. md → JSON 파싱(이 부분 필요없을지도)
+3. 사용자가 제공한 프리셋.owpml 파일을 zip으로 풀기(hwp로 받고 내부적으로 owpml로 변환가능하게끔 수정 필요)
+4. 내부 파일 중 Contents/section0.xml을 JSON 기반으로 새로 생성(json으로 굳이 파싱이 필요한가?)
+5. 나머지 (header.xml, content.hpf, styles 등)는 프리셋 그대로 사용
+6. 다시 zip 압축 → 확장자 .owpml
