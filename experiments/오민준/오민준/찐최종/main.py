@@ -19,8 +19,7 @@ def convert_hwp_to_owpml(hwp_path, owpml_save_path):
     hwp = win32.gencache.EnsureDispatch("HWPFrame.HwpObject.1")
     hwp.Open(hwp_path, "HWP", "")
     time.sleep(0.5)  # 저장 직후 파일 시스템 안정화를 위해 대기
-    success = hwp.SaveAs(owpml_save_path, "HWPML2X", "")
-
+    success = hwp.SaveAs(owpml_save_path, "HWPX", "")
     hwp.Quit()
     if not success:
         raise RuntimeError(f"OWPML 저장 실패: {owpml_save_path}")
