@@ -1,0 +1,106 @@
+dark_stylesheet = """
+QMainWindow {
+    background-color: #2b2b2b;
+}
+QLabel {
+    color: #e0e0e0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#label {
+    color: #cccccc;
+    font-weight: 600;
+}
+QPushButton {
+    background-color: #424242;
+    border-radius: 6px;
+    color: white;
+    padding: 10px 18px;
+    font-weight: bold;
+    font-size: 13px;
+    border: none;
+}
+QPushButton:hover {
+    background-color: #008ee6;
+}
+QPushButton:pressed {
+    background-color: #005f99;
+}
+
+QMessageBox QLabel {
+    font-size: 10pt;
+    font-weight: normal;
+    color: black;
+}
+
+    /* 메시지박스 전용 버튼 */
+QMessageBox QPushButton {
+    font-size: 10pt;
+    font-weight: normal;
+    padding: 4px 10px;
+    min-width: 80px;
+    background-color: #e0e0e0;
+    color: #000;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+}
+
+
+QTextEdit, ZoomableTextEdit {
+    background-color: #313335;
+    border: 1.5px solid #555555;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 13px;
+    color: #f0f0f0;
+}
+
+QTabWidget::pane {
+    border: 1px solid #5c5f61;
+    border-radius: 6px;
+    background: #2b2b2b;
+}
+QTabBar::tab {
+    background: #3c3f41;
+    border: 1px solid #5c5f61;
+    padding: 8px 16px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    margin-right: 4px;
+    color: #dddddd;
+}
+QTabBar::tab:selected {
+    background: #2b2b2b;
+    color: #ffffff;
+    font-weight: bold;
+    border-bottom: none;
+}
+
+QStatusBar {
+    background-color: #2b2b2b;
+    color: #aaaaaa;
+}
+
+QMenuBar {
+    background-color: #3c3f41;
+    color: #ffffff;
+}
+QMenuBar::item {
+    background-color: transparent;
+    padding: 4px 10px;
+}
+QMenuBar::item:selected {
+    background-color: #505354;
+}
+
+QMenu {
+    background-color: #2b2b2b;
+    color: #ffffff;
+    border: 1px solid #5c5f61;
+}
+QMenu::item:selected {
+    background-color: #2a82da;
+    color: white;
+}
+"""
