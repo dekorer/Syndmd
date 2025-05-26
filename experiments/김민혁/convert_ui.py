@@ -1,18 +1,12 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog
 import sys
-from app_ui import Ui_MainWindow
-from PySide6.QtWidgets import QTextEdit
-from PySide6.QtCore import QUrl
-from PySide6.QtCore import Qt
-from PySide6.QtCore import QFile
-from PySide6.QtWidgets import QDialog
-from find import Ui_Dialog
-from PySide6.QtWidgets import QMessageBox
-from PySide6.QtGui import QTextCursor
-from PySide6.QtCore import QRegularExpression, QRegularExpressionMatch
-from PySide6.QtGui import QFont
-from PySide6.QtGui import QWheelEvent
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QWidget, QFrame, QLineEdit, QSizePolicy, QVBoxLayout, QHBoxLayout, QTextEdit, QLabel, QPushButton, QDialog, QMessageBox
+from PySide6.QtCore import QUrl, Qt, QFile, QRegularExpression, Signal
+from PySide6.QtGui import QFont, QWheelEvent, QTextCursor
+
 from dark_theme import dark_stylesheet
+from app_ui import Ui_MainWindow
+from find import Ui_Dialog
+from template import AddressManagerWidget
 
 
 class FindWindow(QDialog):  ## 찾기 기능
@@ -20,6 +14,12 @@ class FindWindow(QDialog):  ## 찾기 기능
         super().__init__(parent)
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
+
+        self.main_window = parent # 찾기 박스 다크모드 적용
+        if hasattr(parent, 'dark_mode') and parent.dark_mode:
+            from dark_theme import dark_stylesheet
+            self.setStyleSheet(dark_stylesheet)
+
         self.show()
 
         self.ui.pushButton_findnext.setObjectName("FindButton")
@@ -54,9 +54,12 @@ class FindWindow(QDialog):  ## 찾기 기능
             self.last_pos = start + length  # 끝 위치 저장
         else:
             print("No match found.")
-            msgBox = QMessageBox()
-            msgBox.setText(f"'{pattern}'을(를) 찾을 수 없습니다.")
-            msgBox.exec()
+            parent = self.parent()
+            while parent and not hasattr(parent, "show_message_box"):
+                parent = parent.parent()
+            if parent:
+                parent.show_message_box(f"'{pattern}'을(를) 찾을 수 없습니다.", QMessageBox.Warning)
+
 
     def keyReleaseEvent(self, event):
         print(self.ui.lineEdit.text())
@@ -72,13 +75,15 @@ class FindWindow(QDialog):  ## 찾기 기능
         self.pe.setTextCursor(self.cursor)
 
 
+
+
 class WindowClass(QMainWindow):
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-
-        self.dark_mode = False #다크 모드 관련
+        self.dark_mode = False #다크 모드 관
+        
 
         # 메뉴·버튼 연결
         self.ui.action_open.triggered.connect(self.openFunction)
@@ -90,6 +95,15 @@ class WindowClass(QMainWindow):
         self.ui.action_zoom_in.triggered.connect(self.zoom_in)
         self.ui.action_zoom_out.triggered.connect(self.zoom_out)
         self.ui.action_8.triggered.connect(self.toggle_theme)
+        
+        target_tab = self.ui.tab_template
+        if target_tab.layout() is None:
+            from PySide6.QtWidgets import QVBoxLayout
+            target_tab.setLayout(QVBoxLayout())
+
+        target_tab.layout().addWidget(AddressManagerWidget())
+
+    
 
     def zoom_in(self):
         font = self.ui.textEdit.font()
@@ -104,23 +118,25 @@ class WindowClass(QMainWindow):
         self.ui.textEdit.setFont(font)
 
     def closeEvent(self, event):
-        msgBox = QMessageBox()
-        msgBox.setText("종료하시겠습니까?")
-        msgBox.addButton("예", QMessageBox.YesRole)
-        msgBox.addButton("아니요", QMessageBox.RejectRole)
-        ret = msgBox.exec()
-        print(ret)
-        if ret == 3:
+        ret = self.show_message_box("종료하시겠습니까?", QMessageBox.Question, QMessageBox.Yes | QMessageBox.No)
+        if ret == QMessageBox.No:
             event.ignore()
-            print("exit ignore")
+
 
     def openFunction(self):
+        msgBox = QMessageBox()
         path, _ = QFileDialog.getOpenFileName(self, "파일 열기", "", "Text Files (*.txt *.md);;All Files (*)")
         if path:
             with open(path, encoding="utf-8") as f:
-                text = f.read()
-            self.ui.textEdit.setPlainText(text)
-            print(f"{path} 파일을 열었습니다.")
+                 if not path.endswith(".md"):
+                    QMessageBox.warning(self, "잘못된 파일", ".md 혹은 .txt 형식의 파일만 불러올 수 있습니다.")
+                    return
+                 text = f.read()
+                 self.ui.textEdit.setPlainText(text)
+                 
+                 print(f"{path} 파일을 열었습니다.")
+                 self.ui.textEdit.setPlainText(text)
+
 
     def saveFunction(self):
         path, _ = QFileDialog.getSaveFileName(self, "파일 저장", "", "Text Files (*.txt *.md);;All Files (*)")
@@ -136,15 +152,16 @@ class WindowClass(QMainWindow):
         path, _ = QFileDialog.getOpenFileName(self, "파일 열기", "", "Text Files (*.txt *.md);;All Files (*)")
         if path:
             with open(path, encoding="utf-8") as f:
+                if not path.endswith(".md"):
+                    QMessageBox.warning(self, "잘못된 파일", ".md 혹은 .txt 형식의 파일만 불러올 수 있습니다.")
+                    return
                 text = f.read()
             self.ui.textEdit.setPlainText(text)
             print(f"{path} 파일을 열었습니다.")
 
     def on_conversion(self):
-        msgBox = QMessageBox()
-        msgBox.setText("변환 되었습니다.")
-        
-        msgBox.exec()
+        self.show_message_box("변환 되었습니다.")
+
 
     def toggle_theme(self):
         if self.dark_mode:
@@ -152,6 +169,37 @@ class WindowClass(QMainWindow):
         else:
             self.setStyleSheet(dark_stylesheet)  # 다크 모드 적용
         self.dark_mode = not self.dark_mode
+    
+    def show_message_box(self, text, icon=QMessageBox.Information, buttons=QMessageBox.Ok):
+        msgBox = QMessageBox(self)
+        msgBox.setText(text)
+        msgBox.setIcon(icon)
+        msgBox.setStandardButtons(buttons)
+
+        if self.dark_mode:
+            msgBox.setStyleSheet("""
+                QMessageBox {
+                    background-color: #2b2b2b;
+                    color: white;
+                }
+                QLabel {
+                    color: white;
+                    font-size: 10pt;
+                }
+                QPushButton {
+                    background-color: #3c3f41;
+                    color: white;
+                    border: 1px solid #5c5f61;
+                    border-radius: 4px;
+                    padding: 6px 12px;
+                }
+                QPushButton:hover {
+                    background-color: #2a82da;
+                }
+            """)
+
+        return msgBox.exec()
+
 
 
 if __name__ == "__main__":

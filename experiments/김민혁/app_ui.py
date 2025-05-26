@@ -105,12 +105,9 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.label_3, 0, 1, 1, 1)
 
         self.tabWidget.addTab(self.tab, "")
-        self.tab_2 = QWidget()
-        self.tab_2.setObjectName(u"tab_2")
-        self.textEdit_3 = QTextEdit(self.tab_2)
-        self.textEdit_3.setObjectName(u"textEdit_3")
-        self.textEdit_3.setGeometry(QRect(0, 0, 891, 441))
-        self.tabWidget.addTab(self.tab_2, "")
+        self.tab_template = QWidget()
+        self.tab_template.setObjectName(u"tab_template")
+        self.tabWidget.addTab(self.tab_template, "")
 
         self.gridLayout.addWidget(self.tabWidget, 1, 0, 1, 1)
 
@@ -159,7 +156,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -206,15 +203,7 @@ class Ui_MainWindow(object):
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Markdown \uc785\ub825", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"HWP \ubbf8\ub9ac\ubcf4\uae30", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("MainWindow", u"\ubcc0\ud658", None))
-        self.textEdit_3.setHtml(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"hr { height: 1px; border-width: 0; }\n"
-"li.unchecked::marker { content: \"\\2610\"; }\n"
-"li.checked::marker { content: \"\\2612\"; }\n"
-"</style></head><body style=\" font-family:'\ub9d1\uc740 \uace0\ub515'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">\uc0ac\uc6a9\uc790\uc9c0\uc815\uc11c\uc2dd\ubcf4\uae30</p></body></html>", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("MainWindow", u"\ud15c\ud50c\ub9bf \uc124\uc815", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_template), QCoreApplication.translate("MainWindow", u"\ud15c\ud50c\ub9bf \uc124\uc815", None))
         self.menu_F.setTitle(QCoreApplication.translate("MainWindow", u"\ud30c\uc77c(F)", None))
         self.menu_E.setTitle(QCoreApplication.translate("MainWindow", u"\ud3b8\uc9d1(E)", None))
         self.menu_O.setTitle(QCoreApplication.translate("MainWindow", u"\uc11c\uc2dd(O)", None))

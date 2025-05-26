@@ -28,29 +28,10 @@ QPushButton:pressed {
     background-color: #005f99;
 }
 
-QMessageBox QLabel {
-    font-size: 10pt;
-    font-weight: normal;
-    color: black;
-}
-
-    /* 메시지박스 전용 버튼 */
-QMessageBox QPushButton {
-    font-size: 10pt;
-    font-weight: normal;
-    padding: 4px 10px;
-    min-width: 80px;
-    background-color: #e0e0e0;
-    color: #000;
-    border: 1px solid #aaa;
-    border-radius: 4px;
-}
-
-
 QTextEdit, ZoomableTextEdit {
     background-color: #313335;
     border: 1.5px solid #555555;
-    border-radius: 6px;
+    border-radius: 6px; 
     padding: 8px;
     font-size: 13px;
     color: #f0f0f0;
@@ -103,4 +84,42 @@ QMenu::item:selected {
     background-color: #2a82da;
     color: white;
 }
+
+QDialog {
+    background-color: #2b2b2b;
+    color: white;
+}
+
+QLineEdit {
+    background-color: #3c3f41;
+    color: white;
+    border: 1px solid #5c5f61;
+    border-radius: 4px;
+    padding: 4px 6px;
+}
+
+QGroupBox {
+    border: 1px solid #5c5f61;
+    border-radius: 6px;
+    margin-top: 6px;
+    color: white;
+}
+
+QCheckBox, QRadioButton {
+    color: white;
+}
+
+/* 스크롤 영역 전체 배경색 */
+QScrollArea {
+    background-color: #2b2b2b;  /* 바깥 배경 */
+    border: none;
+}
+
+/* 스크롤 영역 안의 실제 콘텐츠 위젯 */
+QScrollArea QWidget {
+    background-color: #2b2b2b;  /* 내부 흰 배경 제거 */
+    color: #e0e0e0;
+}
+
+
 """
