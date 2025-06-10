@@ -31,9 +31,13 @@ class AddressItem(QFrame):
 
         self.label = QLabel(self.display_text)
         layout.addWidget(self.label)
-
+        
         self.btn_edit = QPushButton("이름 수정")
+        self.btn_edit.setObjectName("btn_edit")#object 생성
+
         self.btn_delete = QPushButton("삭제")
+        self.btn_delete.setObjectName("btn_delete")#object 생성
+        
         layout.addWidget(self.btn_edit)
         layout.addWidget(self.btn_delete)
 
