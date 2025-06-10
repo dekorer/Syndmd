@@ -1,4 +1,5 @@
 dark_stylesheet = """
+
 QMainWindow {
     background-color: #2b2b2b;
 }
@@ -18,7 +19,7 @@ QPushButton {
     color: white;
     padding: 10px 18px;
     font-weight: bold;
-    font-size: 13px;
+    font-size: 13px;    
     border: none;
 }
 QPushButton:hover {
@@ -119,6 +120,21 @@ QScrollArea {
 QScrollArea QWidget {
     background-color: #2b2b2b;  /* 내부 흰 배경 제거 */
     color: #e0e0e0;
+}
+/* 다크모드 템플릿 버튼 색 지정*/
+#btn_edit, #btn_delete {
+    background-color: #424242;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    padding: 6px 12px;
+}
+#btn_edit:hover, #btn_delete:hover {
+    background-color: #008ee6;
+}
+#btn_edit:pressed, #btn_delete:pressed {
+    background-color: #005f99;
 }
 
 
