@@ -121,7 +121,6 @@ QScrollArea QWidget {
     background-color: #2b2b2b;  /* 내부 흰 배경 제거 */
     color: #e0e0e0;
 }
-/* 다크모드 템플릿 버튼 색 지정*/
 #btn_edit, #btn_delete {
     background-color: #424242;
     color: white;
