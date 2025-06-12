@@ -32,7 +32,11 @@ class AddressItem(QFrame):
         layout.addWidget(self.label)
 
         self.btn_edit = QPushButton("이름 수정")
+        self.btn_edit.setObjectName("btn_edit")
+
         self.btn_delete = QPushButton("삭제")
+        self.btn_delete.setObjectName("btn_delete")
+        
         layout.addWidget(self.btn_edit)
         layout.addWidget(self.btn_delete)
 
@@ -144,9 +148,16 @@ class AddressItem(QFrame):
         self.editing = False
 
     def confirm_delete(self):
-        result = QMessageBox.question(self, "삭제 확인", f"'{self._text}' 을 삭제하시겠습니까?",
-                                      QMessageBox.Yes | QMessageBox.No)
-        if result == QMessageBox.Yes:
+        result = QMessageBox(self)
+        result.setIcon(QMessageBox.Question)
+        result.setWindowTitle("삭제 확인")
+        result.setText(f"'{self._text[:-4]}' 을 삭제하시겠습니까?")
+
+        yes_button = result.addButton("예(&Y)", QMessageBox.YesRole)  # Alt+Y
+        no_button = result.addButton("아니오(&N)", QMessageBox.NoRole)  # Alt+N
+
+        result.exec()
+        if result.clickedButton() == yes_button:
             if os.path.exists(self.value):
                 os.remove(self.value)
             self.removed.emit(self._text)
@@ -199,9 +210,6 @@ class AddressManagerWidget(QWidget):
         #저장된 주소 정보 불러오기
         self.load_addresses()
 
-
-
-
     def add_address(self):
         source_file, _ = QFileDialog.getOpenFileName(self, "파일 열기", "", "Text Files (*.hwp);;All Files (*)")
         if not source_file:
@@ -219,7 +227,7 @@ class AddressManagerWidget(QWidget):
 
         try:
             shutil.copy(source_file, destination_path)
-            QMessageBox.information(self, "성공", f"{new_file_name}로 저장되었습니다:\n{destination_path}")
+            QMessageBox.information(self, "저장 성공", f"[{new_file_name[:-4]}](으)로 저장되었습니다.")
         except Exception as e:
             QMessageBox.critical(self, "오류", f"파일 복사 중 오류 발생:\n{str(e)}")
             return
@@ -243,10 +251,40 @@ class AddressManagerWidget(QWidget):
             if is_selected:
                 self.selected_item = item
                 display_text = item._text[:-4] if item._text.endswith('.hwp') else item._text
-                self.label_status.setText(f"현재 선택된 템플릿은 [{display_text}]입니다.")
+                self.label_status.setText(f"현재 선택된 템플릿은 [{display_text}] 입니다.")
                 print(self.selected_item.value)## 템플릿 주소값
                 self.status_changed.emit(display_text)
                 
+                if not os.path.exists(self.selected_item.value):
+                    QMessageBox.warning(
+                        self, 
+                        "존재하지 않는 파일", 
+                        f"선택한 템플릿 파일이 존재하지 않습니다."
+                    )
+                    
+
+                    ret = QMessageBox(self)
+                    ret.setIcon(QMessageBox.Question)
+                    ret.setWindowTitle("존재하지 않는 파일")
+                    ret.setText("선택된 템플릿 파일을 삭제하시겠습니까?")
+
+                    yes_button = ret.addButton("예(&Y)", QMessageBox.YesRole)  # Alt+Y
+                    no_button = ret.addButton("아니오(&N)", QMessageBox.NoRole)  # Alt+N
+
+                    ret.exec()
+                    self.label_status.setText("현재 선택된 템플릿이 없습니다.")
+                    self.status_changed.emit("")
+
+                    if ret.clickedButton() == yes_button:
+                         self.remove_address(self.selected_item._text)
+                    else:        
+                        return
+
+
+                    self.label_status.setText("현재 선택된 템플릿이 없습니다.")
+                    self.status_changed.emit("")
+
+
     def clear_selection(self):
         for item in self.address_items:
             item.set_selected(False)  # 선택 해제
@@ -260,8 +298,8 @@ class AddressManagerWidget(QWidget):
             if item._text == new_text:
                 if self.selected_item and self.selected_item._text == old_text:
                     self.selected_item = item
-                    self.label_status.setText(f"현재 선택된 템플릿은 [{new_text}]입니다.")
-                    self.status_changed.emit(f"현재 선택된 템플릿은 [{new_text}]입니다.")
+                    self.label_status.setText(f"현재 선택된 템플릿은 [{new_text}] 입니다.")
+                    self.status_changed.emit(f"현재 선택된 템플릿은 [{new_text}] 입니다.")
                 break
         self.save_addresses()  # JSON 저장
 
@@ -276,9 +314,9 @@ class AddressManagerWidget(QWidget):
         if self.selected_item and (self.selected_item._text == text_or_path or self.selected_item.value == text_or_path):
             self.label_status.setText("현재 선택된 템플릿이 없습니다.")
             self.selected_item = None
+            self.status_changed.emit("")            
 
         self.save_addresses()  # JSON 저장
-
 
 
     def save_addresses(self):

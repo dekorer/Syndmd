@@ -16,9 +16,9 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QGridLayout, QLabel, QMainWindow,
-    QMenu, QMenuBar, QPushButton, QSizePolicy,
-    QStatusBar, QTabWidget, QTextEdit, QToolBar,
+from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QLabel,
+    QMainWindow, QMenu, QMenuBar, QPushButton,
+    QSizePolicy, QStatusBar, QTabWidget, QToolBar,
     QWidget)
 
 from zoomabletextedit import ZoomableTextEdit
@@ -63,57 +63,6 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.tabWidget = QTabWidget(self.centralwidget)
-        self.tabWidget.setObjectName(u"tabWidget")
-        self.tabWidget.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.tab = QWidget()
-        self.tab.setObjectName(u"tab")
-        self.gridLayout_2 = QGridLayout(self.tab)
-        self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.label_2 = QLabel(self.tab)
-        self.label_2.setObjectName(u"label_2")
-
-        self.gridLayout_2.addWidget(self.label_2, 1, 0, 1, 1)
-
-        self.textEdit_2 = QTextEdit(self.tab)
-        self.textEdit_2.setObjectName(u"textEdit_2")
-
-        self.gridLayout_2.addWidget(self.textEdit_2, 3, 1, 1, 1)
-
-        self.template_label = QLabel(self.tab)
-        self.template_label.setObjectName(u"template_label")
-
-        self.gridLayout_2.addWidget(self.template_label, 5, 0, 1, 1)
-
-        self.textEdit = ZoomableTextEdit(self.tab)
-        self.textEdit.setObjectName(u"textEdit")
-
-        self.gridLayout_2.addWidget(self.textEdit, 3, 0, 1, 1)
-
-        self.pushButton = QPushButton(self.tab)
-        self.pushButton.setObjectName(u"pushButton")
-        self.pushButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-
-        self.gridLayout_2.addWidget(self.pushButton, 4, 1, 1, 1)
-
-        self.label_3 = QLabel(self.tab)
-        self.label_3.setObjectName(u"label_3")
-
-        self.gridLayout_2.addWidget(self.label_3, 1, 1, 1, 1)
-
-        self.pushButton_open = QPushButton(self.tab)
-        self.pushButton_open.setObjectName(u"pushButton_open")
-        self.pushButton_open.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-
-        self.gridLayout_2.addWidget(self.pushButton_open, 4, 0, 1, 1)
-
-        self.tabWidget.addTab(self.tab, "")
-        self.tab_template = QWidget()
-        self.tab_template.setObjectName(u"tab_template")
-        self.tabWidget.addTab(self.tab_template, "")
-
-        self.gridLayout.addWidget(self.tabWidget, 1, 1, 1, 1)
-
         self.logo = QLabel(self.centralwidget)
         self.logo.setObjectName(u"logo")
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
@@ -127,6 +76,48 @@ class Ui_MainWindow(object):
         self.logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout.addWidget(self.logo, 0, 1, 1, 1)
+
+        self.tabWidget = QTabWidget(self.centralwidget)
+        self.tabWidget.setObjectName(u"tabWidget")
+        self.tabWidget.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.tab = QWidget()
+        self.tab.setObjectName(u"tab")
+        self.gridLayout_2 = QGridLayout(self.tab)
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.textEdit = ZoomableTextEdit(self.tab)
+        self.textEdit.setObjectName(u"textEdit")
+
+        self.gridLayout_2.addWidget(self.textEdit, 2, 0, 1, 2)
+
+        self.template_label = QLabel(self.tab)
+        self.template_label.setObjectName(u"template_label")
+
+        self.gridLayout_2.addWidget(self.template_label, 5, 0, 1, 1)
+
+        self.hwpruncheck = QCheckBox(self.tab)
+        self.hwpruncheck.setObjectName(u"hwpruncheck")
+        self.hwpruncheck.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+
+        self.gridLayout_2.addWidget(self.hwpruncheck, 5, 1, 1, 1)
+
+        self.pushButton_open = QPushButton(self.tab)
+        self.pushButton_open.setObjectName(u"pushButton_open")
+        self.pushButton_open.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+
+        self.gridLayout_2.addWidget(self.pushButton_open, 3, 0, 1, 1)
+
+        self.pushButton = QPushButton(self.tab)
+        self.pushButton.setObjectName(u"pushButton")
+        self.pushButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+
+        self.gridLayout_2.addWidget(self.pushButton, 3, 1, 1, 1)
+
+        self.tabWidget.addTab(self.tab, "")
+        self.tab_template = QWidget()
+        self.tab_template.setObjectName(u"tab_template")
+        self.tabWidget.addTab(self.tab_template, "")
+
+        self.gridLayout.addWidget(self.tabWidget, 1, 1, 1, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
@@ -211,11 +202,10 @@ class Ui_MainWindow(object):
         self.action_zoom_out.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+-", None))
 #endif // QT_CONFIG(shortcut)
         self.action_H.setText(QCoreApplication.translate("MainWindow", u"\ub3c4\uc6c0\ub9d0 \ubcf4\uae30(&H)", None))
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Markdown \uc785\ub825", None))
         self.template_label.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"\ubcc0\ud658\ud558\uae30", None))
-        self.label_3.setText(QCoreApplication.translate("MainWindow", u"HWP \ubbf8\ub9ac\ubcf4\uae30", None))
+        self.hwpruncheck.setText(QCoreApplication.translate("MainWindow", u"\ubcc0\ud658\ub41c \ud55c\uae00\ud30c\uc77c \uc2e4\ud589\ud558\uae30(&R)", None))
         self.pushButton_open.setText(QCoreApplication.translate("MainWindow", u"MD \ud30c\uc77c \uc5c5\ub85c\ub4dc", None))
+        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"\ubcc0\ud658\ud558\uae30", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("MainWindow", u"\ubcc0\ud658", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_template), QCoreApplication.translate("MainWindow", u"\ud15c\ud50c\ub9bf \uc124\uc815", None))
         self.menu_F.setTitle(QCoreApplication.translate("MainWindow", u"\ud30c\uc77c(&F)", None))
