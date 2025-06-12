@@ -7,6 +7,7 @@ import parse_edit_section0
 import re
 from tkinter import filedialog, Tk
 from typing import Literal
+import time
 
 
 TextStyle = Literal["제목", "중제목", "본문", "리스트"]
@@ -39,14 +40,32 @@ def parse_md_file(md_path: str) -> list[dict]:
     """
     마크다운 파일을 분석하여 텍스트와 스타일 정보를 반환
     """
+    import re
     results = []
     with open(md_path, "r", encoding="utf-8") as f:
         for line in f:
-            cleaned = clean_md_line(line)
-            if cleaned.strip():
-                style = classify_md_line(line)
-                results.append({"text": cleaned, "style": style})
+            line = line.strip()
+            if not line:
+                continue
+
+            style = classify_md_line(line)
+
+            # bold 나누기: '**굵은** 텍스트'
+            parts = re.split(r'(\*\*[^\*]+\*\*)', line)
+            for part in parts:
+                if not part.strip():
+                    continue
+                bold = False
+                cleaned = clean_md_line(part)
+                if part.startswith("**") and part.endswith("**"):
+                    bold = True
+                results.append({
+                    "text": cleaned,
+                    "style": style,
+                    "bold": bold
+                })
     return results
+
 
 def automate_hwp_roundtrip(input_hwp_path: str, output_hwp_path: str, styled_texts: list[dict]) -> None:
     """
@@ -80,10 +99,11 @@ if __name__ == "__main__":
 
     md_path = filedialog.askopenfilename(title="삽입할 MD 파일을 선택하세요", filetypes=[("Markdown files", "*.md")])
     if not md_path:
-        print("마크다운 파일이 선택되지 않았습니다.")
+        print("md 파일이 선택되지 않았습니다.")
         exit()
 
     styled_texts = parse_md_file(md_path)
 
     output_hwp = os.path.abspath("final_output.hwp")
     automate_hwp_roundtrip(input_hwp, output_hwp, styled_texts)
+    #time.sleep(1)
