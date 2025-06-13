@@ -5,7 +5,6 @@ from excludes import is_excluded
 
 roman_counter = 0            # 로마숫자용 (title2)
 sub_counter = 0              # 소제목 번호 (title3)
-current_number = 0           # 로마숫자 → 숫자값 기억
 
 def int_to_roman(n):
     vals = [
@@ -21,7 +20,7 @@ def int_to_roman(n):
     return res
 
 def merge_paragraphs_with_header(paragraph_dir: str, output_path: str, templateNum: int, markdown_text: str):
-    global roman_counter, sub_counter, current_number
+    global roman_counter, sub_counter
     
     # templateN_header.xml 경로 지정
     header_filename = f"template{templateNum}_header.xml"
@@ -62,7 +61,6 @@ def merge_paragraphs_with_header(paragraph_dir: str, output_path: str, templateN
         if style == "title2":
             roman_counter += 1
             sub_counter = 0
-            current_number = roman_counter
             roman = int_to_roman(roman_counter)
 
             t_elements = root.findall(".//hp:t", ns)
@@ -135,4 +133,3 @@ def merge_paragraphs_with_header(paragraph_dir: str, output_path: str, templateN
         f.write(body)
         f.write("</hs:sec>\n")
     print(f"▶ 병합된 section0.xml 저장 완료: {output_path}")
-
