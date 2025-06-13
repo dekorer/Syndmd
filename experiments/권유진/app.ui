@@ -22,6 +22,34 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="1">
+     <widget class="QLabel" name="logo">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>100</width>
+        <height>100</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignmentFlag::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
     <item row="1" column="1">
      <widget class="QTabWidget" name="tabWidget">
       <property name="cursor">
@@ -35,15 +63,8 @@
         <string>변환</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Markdown 입력</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QTextEdit" name="textEdit_2"/>
+        <item row="2" column="0" colspan="2">
+         <widget class="ZoomableTextEdit" name="textEdit"/>
         </item>
         <item row="5" column="0">
          <widget class="QLabel" name="template_label">
@@ -52,33 +73,33 @@
           </property>
          </widget>
         </item>
+        <item row="5" column="1">
+         <widget class="QCheckBox" name="hwpruncheck">
+          <property name="layoutDirection">
+           <enum>Qt::LayoutDirection::RightToLeft</enum>
+          </property>
+          <property name="text">
+           <string>변환된 한글파일 실행하기(&amp;R)</string>
+          </property>
+         </widget>
+        </item>
         <item row="3" column="0">
-         <widget class="ZoomableTextEdit" name="textEdit"/>
-        </item>
-        <item row="4" column="1">
-         <widget class="QPushButton" name="pushButton">
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
-          <property name="text">
-           <string>변환하기</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>HWP 미리보기</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
          <widget class="QPushButton" name="pushButton_open">
           <property name="cursor">
            <cursorShape>PointingHandCursor</cursorShape>
           </property>
           <property name="text">
            <string>MD 파일 업로드</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="pushButton">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>변환하기</string>
           </property>
          </widget>
         </item>
@@ -90,35 +111,6 @@
        </attribute>
       </widget>
      </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QLabel" name="logo">
-        <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-          </sizepolicy>
-        </property>
-        <property name="minimumSize">
-          <size>
-            <width>100</width>
-            <height>100</height>
-          </size>
-        </property>
-        <property name="maximumSize">
-          <size>
-            <width>16777215</width>
-            <height>16777215</height>
-          </size>
-        </property>
-        <property name="scaledContents">
-          <bool>false</bool>
-        </property>
-        <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignCenter</set>
-        </property>
-      </widget>
-
     </item>
    </layout>
   </widget>

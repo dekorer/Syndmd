@@ -1,13 +1,12 @@
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QWidget, QFrame, QLineEdit, QSizePolicy, QVBoxLayout, QHBoxLayout, QTextEdit, QLabel, QPushButton, QDialog, QMessageBox
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QWidget, QFrame, QLineEdit, QSizePolicy, QVBoxLayout, QHBoxLayout, QTextEdit, QLabel, QPushButton, QDialog, QMessageBox, QToolButton
 from PySide6.QtCore import QUrl, Qt, QFile, QRegularExpression, Signal , QObject, QSize
-from PySide6.QtGui import QFont, QWheelEvent, QTextCursor, QPixmap
+from PySide6.QtGui import QFont, QWheelEvent, QTextCursor, QPixmap, QIcon
 
 from dark_theme import dark_stylesheet
 from app_ui import Ui_MainWindow
 from find import Ui_Dialog
 from template import AddressManagerWidget
-
 
 class FindWindow(QDialog):  ## 찾기 기능
     def __init__(self, parent=None):
@@ -22,6 +21,7 @@ class FindWindow(QDialog):  ## 찾기 기능
         if hasattr(parent, 'dark_mode') and parent.dark_mode:
             from dark_theme import dark_stylesheet
             self.setStyleSheet(dark_stylesheet)
+        
 
         self.show()
 
@@ -44,6 +44,7 @@ class FindWindow(QDialog):  ## 찾기 기능
         self.ui.radioButton_Down.toggled.connect(self.update_search_position)
 
         self.update_button_state()  # 초기 버튼 상태 업데이트
+
 
     def update_button_state(self):
         # 찾기 버튼 활성화/비활성화
@@ -201,8 +202,6 @@ class FindWindow(QDialog):  ## 찾기 기능
 
 
 
-
-
 class WindowClass(QMainWindow):
     FIXED_SIZE = QSize(200, 80)
     def __init__(self):
@@ -241,6 +240,7 @@ class WindowClass(QMainWindow):
 
         self.template_selec.status_changed.connect(self.update_template_label)
         self.ui.template_label.setText("템플릿 미적용 중입니다.")
+
 
     def update_template_label(self, display_text):
         if display_text == "":
@@ -322,17 +322,17 @@ class WindowClass(QMainWindow):
         self.show_message_box("변환 되었습니다.")
 
     
-
+# 다크모드 수정
     def toggle_theme(self):
         app = QApplication.instance()
-        
         if self.dark_mode:
-            app.setStyleSheet("")  # 라이트 모드
+            app.setStyleSheet(light_stylesheet)  # 라이트 스타일 재적용
         else:
             from dark_theme import dark_stylesheet
-            app.setStyleSheet(dark_stylesheet)  # 다크 모드
+            app.setStyleSheet(dark_stylesheet)   # 다크 스타일 적용
 
         self.dark_mode = not self.dark_mode
+
 
 
     
@@ -367,94 +367,90 @@ class WindowClass(QMainWindow):
         return msgBox.exec()
 
 
-
+# 다크모드 해제시 스타일 시트 해제 수정
 if __name__ == "__main__":
     import sys
     from PySide6.QtWidgets import QApplication
 
+    light_stylesheet = """
+        QMainWindow { background-color: #f5f7fa; }
+        QLabel { font-size: 14px; font-weight: 600; color: #2c3e50; }
+        /* 메시지박스 전용 텍스트 */
+        QMessageBox QLabel {
+            font-size: 10pt;
+            font-weight: normal;
+            color: black;
+        }
+        /* 메시지박스 전용 버튼 */
+        QMessageBox QPushButton {
+            font-size: 10pt;
+            font-weight: normal;
+            padding: 4px 10px;
+            min-width: 80px;
+            background-color: #e0e0e0;
+            color: #000;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+        }
+        QPushButton {
+            background-color: #3498db;
+            border-radius: 8px;
+            color: white;
+            padding: 10px 18px;
+            font-weight: bold;
+            font-size: 13px;
+            border: none;
+        }
+        QPushButton:hover { background-color: #2980b9; }
+        QPushButton:pressed { background-color: #1c5980; }
+        QTextEdit, ZoomableTextEdit {
+            background-color: white;
+            border: 1.5px solid #bdc3c7;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 13px;
+            color: #2c3e50;
+        }
+        QTabWidget::pane {
+            border: 1px solid #dcdcdc;
+            border-radius: 6px;
+            background: white;
+        }
+        QTabBar::tab {
+            background: #ecf0f1;
+            border: 1px solid #dcdcdc;
+            border-bottom: none;
+            padding: 8px 16px;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            margin-right: 4px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        QTabBar::tab:selected {
+            background: white;
+            font-weight: 700;
+            color: #2c3e50;
+            border-color: #3498db;
+        }
+        QStatusBar { background-color: #ecf0f1; color: #34495e; }
+        QMenuBar { background-color: #3498db; color: white; }
+        QMenuBar::item { background-color: transparent; padding: 4px 10px; }
+        QMenuBar::item:selected { background-color: #2980b9; }
+        QMenu {
+            background-color: white;
+            border: 1px solid #dcdcdc;
+            color: #2c3e50;
+        }
+        QMenu::item:selected {
+            background-color: #3498db;
+            color: white;
+        }
+        """
+    
     app = QApplication(sys.argv)
+    app.setStyleSheet(light_stylesheet)  # 초기 라이트 테마 적용
     
-
-    # 스타일시트 한 번만 적용
-    app.setStyleSheet("""
-    QMainWindow { background-color: #f5f7fa; }
-    QLabel { font-size: 14px; font-weight: 600; color: #2c3e50; }
-    
-    /* 메시지박스 전용 텍스트 */
-    QMessageBox QLabel {
-        font-size: 10pt;
-        font-weight: normal;
-        color: black;
-}
-
-    /* 메시지박스 전용 버튼 */
-    QMessageBox QPushButton {
-        font-size: 10pt;
-        font-weight: normal;
-        padding: 4px 10px;
-        min-width: 80px;
-        background-color: #e0e0e0;
-        color: #000;
-        border: 1px solid #aaa;
-        border-radius: 4px;
-}
-                      
-    QPushButton {
-        background-color: #3498db;
-        border-radius: 8px;
-        color: white;
-        padding: 10px 18px;
-        font-weight: bold;
-        font-size: 13px;
-        border: none;
-    }
-    QPushButton:hover { background-color: #2980b9; }
-    QPushButton:pressed { background-color: #1c5980; }
-    QTextEdit, ZoomableTextEdit {
-        background-color: white;
-        border: 1.5px solid #bdc3c7;
-        border-radius: 6px;
-        padding: 8px;
-        font-size: 13px;
-        color: #2c3e50;
-    }
-    QTabWidget::pane {
-        border: 1px solid #dcdcdc;
-        border-radius: 6px;
-        background: white;
-    }
-    QTabBar::tab {
-        background: #ecf0f1;
-        border: 1px solid #dcdcdc;
-        border-bottom: none;
-        padding: 8px 16px;
-        border-top-left-radius: 6px;
-        border-top-right-radius: 6px;
-        margin-right: 4px;
-        font-weight: 600;
-        color: #34495e;
-    }
-    QTabBar::tab:selected {
-        background: white;
-        font-weight: 700;
-        color: #2c3e50;
-        border-color: #3498db;
-    }
-    QStatusBar { background-color: #ecf0f1; color: #34495e; }
-    QMenuBar { background-color: #3498db; color: white; }
-    QMenuBar::item { background-color: transparent; padding: 4px 10px; }
-    QMenuBar::item:selected { background-color: #2980b9; }
-    QMenu {
-        background-color: white;
-        border: 1px solid #dcdcdc;
-        color: #2c3e50;
-    }
-    QMenu::item:selected {
-        background-color: #3498db;
-        color: white;
-    }
-    """)
-
     win = WindowClass()
     win.show()
     sys.exit(app.exec())

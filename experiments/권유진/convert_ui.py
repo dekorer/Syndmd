@@ -1,4 +1,4 @@
-import sys
+import sys ,tempfile
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QWidget, QFrame, QLineEdit, QSizePolicy, QVBoxLayout, QHBoxLayout, QTextEdit, QLabel, QPushButton, QDialog, QMessageBox
 from PySide6.QtCore import QUrl, Qt, QFile, QRegularExpression, Signal , QObject, QSize
 from PySide6.QtGui import QFont, QWheelEvent, QTextCursor, QPixmap
@@ -45,6 +45,7 @@ class FindWindow(QDialog):  ## 찾기 기능
 
         self.update_button_state()  # 초기 버튼 상태 업데이트
 
+
     def update_button_state(self):
         # 찾기 버튼 활성화/비활성화
         has_text = bool(self.ui.lineEdit.text().strip())
@@ -66,9 +67,7 @@ class FindWindow(QDialog):  ## 찾기 기능
     def findnext(self):
        
         pattern = self.ui.lineEdit.text()
-        if not pattern:
-            QMessageBox.warning(self, "찾기", "찾을 내용을 입력하세요.")
-            return
+        
 
         regex = QRegularExpression(pattern)
         if self.ui.checkBox_CaseSenesitive.isChecked():
@@ -209,10 +208,11 @@ class WindowClass(QMainWindow):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.tmp_md_path = None
 
         self.dark_mode = False #다크 모드
 
-        self.original_pixmap = QPixmap('C:/Users/pc/Desktop/pymd/final_logo.png')####로고사진경로
+        self.original_pixmap = QPixmap('final_logo.png')####로고사진경로(상대경로로)
         self.ui.logo.setAlignment(Qt.AlignCenter)
         self.update_logo_pixmap()####
         self.show()
@@ -227,8 +227,6 @@ class WindowClass(QMainWindow):
         self.ui.action_zoom_in.triggered.connect(self.zoom_in)
         self.ui.action_zoom_out.triggered.connect(self.zoom_out)
         self.ui.action_8.triggered.connect(self.toggle_theme)
-        ##self.ui.gridLayout.setSpacing(0)  # 위/아래 간격 최소화
-        ## self.ui.gridLayout.setContentsMargins(0, 0, 0, 0)  # 전체 여백 최소화
 
         self.template_selec = AddressManagerWidget() 
 
@@ -240,11 +238,11 @@ class WindowClass(QMainWindow):
         target_tab.layout().addWidget(self.template_selec)  
 
         self.template_selec.status_changed.connect(self.update_template_label)
-        self.ui.template_label.setText("템플릿 미적용 중입니다.")
+        self.ui.template_label.setText("템플릿이 적용되지 않았습니다.")
 
     def update_template_label(self, display_text):
         if display_text == "":
-            self.ui.template_label.setText("템플릿 미적용 중입니다.")
+            self.ui.template_label.setText("템플릿이 적용되지 않았습니다.")
         else :
             self.ui.template_label.setText(f"[{display_text}] 템플릿 적용 중입니다.")
 
@@ -274,11 +272,19 @@ class WindowClass(QMainWindow):
         self.ui.textEdit.setFont(font)
 
     def closeEvent(self, event):
-        ret = self.show_message_box("종료하시겠습니까? 저장되지 않거나 변환되지 않은 파일은 전부 삭제됩니다. ", QMessageBox.Question, QMessageBox.Yes | QMessageBox.No)
-        if ret == QMessageBox.Yes:
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Question)
+        msg.setWindowTitle("프로그램 종료")
+        msg.setText("종료하시겠습니까? 저장되지 않거나 변환되지 않은 파일은 전부 삭제됩니다.")
+
+        yes_button = msg.addButton("예(&Y)", QMessageBox.YesRole)  # Alt+Y
+        no_button = msg.addButton("아니오(&N)", QMessageBox.NoRole)  # Alt+N
+
+        msg.exec()
+        if msg.clickedButton() == yes_button:
             self.save_addresses()
             event.accept()
-        else:
+        else:        
             event.ignore()
 
 
@@ -318,17 +324,49 @@ class WindowClass(QMainWindow):
             self.ui.textEdit.setPlainText(text)
             print(f"{path} 파일을 열었습니다.")
 
+
+
     def on_conversion(self):
-        self.show_message_box("변환 되었습니다.")
+        #여기에 템플릿 파일 존재하는지 체크 해야함
+        text = self.ui.textEdit.toPlainText()
+       #import tempfile 해야 됨
+        tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".md", mode="w", encoding="utf-8")
+        tmp_file.write(text)
+        tmp_file.close()
 
-    
-    def toggle_theme(self):
-        if self.dark_mode:
-            self.setStyleSheet("")  # 라이트 모드
+        # 경로 저장 
+        tmp_md_path = tmp_file.name
+        print(f"tmp.md 파일 저장됨 → {tmp_md_path}")####연결부분(md파일부분)
+
+        # md파일 읽어보기(없어도 됨 테스트용)
+        with open(tmp_md_path, "r", encoding="utf-8") as f:
+            content = f.read()
+            print("tmp.md 내용:\n", content)
+
+        if content == "":
+            QMessageBox.warning(self, "변환용 파일 감지 실패", "변환할 파일을 작성해주세요.")
+            return
+
+        ####여기 변환 코드 연동해야됨
+        
+        if self.ui.hwpruncheck.isChecked():
+            ### 여기에 한글파일 실행 코드 작성
+            self.show_message_box("변환 되었습니다.")
         else:
-            self.setStyleSheet(dark_stylesheet)  # 다크 모드 적용
-        self.dark_mode = not self.dark_mode
+            self.show_message_box("변환 되었습니다.")
 
+
+# 다크모드 수정
+    def toggle_theme(self):
+        app = QApplication.instance()
+        if self.dark_mode:
+            app.setStyleSheet(light_stylesheet)  # 라이트 스타일 재적용
+        else:
+            from dark_theme import dark_stylesheet
+            app.setStyleSheet(dark_stylesheet)   # 다크 스타일 적용
+
+        self.dark_mode = not self.dark_mode
+        
     
     def show_message_box(self, text, icon=QMessageBox.Information, buttons=QMessageBox.Ok):
         msgBox = QMessageBox(self)
@@ -362,92 +400,90 @@ class WindowClass(QMainWindow):
 
 
 
+# 다크모드 해제시 스타일 시트 해제 수정
 if __name__ == "__main__":
     import sys
     from PySide6.QtWidgets import QApplication
 
-    app = QApplication(sys.argv)
-
-    # 스타일시트 한 번만 적용
-    app.setStyleSheet("""
-    QMainWindow { background-color: #f5f7fa; }
-    QLabel { font-size: 14px; font-weight: 600; color: #2c3e50; }
+    light_stylesheet = """
+        QMainWindow { background-color: #f5f7fa; }
+        QLabel { font-size: 14px; font-weight: 600; color: #2c3e50; }
+        /* 메시지박스 전용 텍스트 */
+        QMessageBox QLabel {
+            font-size: 10pt;
+            font-weight: normal;
+            color: black;
+        }
+        /* 메시지박스 전용 버튼 */
+        QMessageBox QPushButton {
+            font-size: 10pt;
+            font-weight: normal;
+            padding: 4px 10px;
+            min-width: 80px;
+            background-color: #e0e0e0;
+            color: #000;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+        }
+        QPushButton {
+            background-color: #3498db;
+            border-radius: 8px;
+            color: white;
+            padding: 10px 18px;
+            font-weight: bold;
+            font-size: 13px;
+            border: none;
+        }
+        QPushButton:hover { background-color: #2980b9; }
+        QPushButton:pressed { background-color: #1c5980; }
+        QTextEdit, ZoomableTextEdit {
+            background-color: white;
+            border: 1.5px solid #bdc3c7;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 13px;
+            color: #2c3e50;
+        }
+        QTabWidget::pane {
+            border: 1px solid #dcdcdc;
+            border-radius: 6px;
+            background: white;
+        }
+        QTabBar::tab {
+            background: #ecf0f1;
+            border: 1px solid #dcdcdc;
+            border-bottom: none;
+            padding: 8px 16px;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            margin-right: 4px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        QTabBar::tab:selected {
+            background: white;
+            font-weight: 700;
+            color: #2c3e50;
+            border-color: #3498db;
+        }
+        QStatusBar { background-color: #ecf0f1; color: #34495e; }
+        QMenuBar { background-color: #3498db; color: white; }
+        QMenuBar::item { background-color: transparent; padding: 4px 10px; }
+        QMenuBar::item:selected { background-color: #2980b9; }
+        QMenu {
+            background-color: white;
+            border: 1px solid #dcdcdc;
+            color: #2c3e50;
+        }
+        QMenu::item:selected {
+            background-color: #3498db;
+            color: white;
+        }
+        """
     
-    /* 메시지박스 전용 텍스트 */
-    QMessageBox QLabel {
-        font-size: 10pt;
-        font-weight: normal;
-        color: black;
-}
-
-    /* 메시지박스 전용 버튼 */
-    QMessageBox QPushButton {
-        font-size: 10pt;
-        font-weight: normal;
-        padding: 4px 10px;
-        min-width: 80px;
-        background-color: #e0e0e0;
-        color: #000;
-        border: 1px solid #aaa;
-        border-radius: 4px;
-}
-                      
-    QPushButton {
-        background-color: #3498db;
-        border-radius: 8px;
-        color: white;
-        padding: 10px 18px;
-        font-weight: bold;
-        font-size: 13px;
-        border: none;
-    }
-    QPushButton:hover { background-color: #2980b9; }
-    QPushButton:pressed { background-color: #1c5980; }
-    QTextEdit, ZoomableTextEdit {
-        background-color: white;
-        border: 1.5px solid #bdc3c7;
-        border-radius: 6px;
-        padding: 8px;
-        font-size: 13px;
-        color: #2c3e50;
-    }
-    QTabWidget::pane {
-        border: 1px solid #dcdcdc;
-        border-radius: 6px;
-        background: white;
-    }
-    QTabBar::tab {
-        background: #ecf0f1;
-        border: 1px solid #dcdcdc;
-        border-bottom: none;
-        padding: 8px 16px;
-        border-top-left-radius: 6px;
-        border-top-right-radius: 6px;
-        margin-right: 4px;
-        font-weight: 600;
-        color: #34495e;
-    }
-    QTabBar::tab:selected {
-        background: white;
-        font-weight: 700;
-        color: #2c3e50;
-        border-color: #3498db;
-    }
-    QStatusBar { background-color: #ecf0f1; color: #34495e; }
-    QMenuBar { background-color: #3498db; color: white; }
-    QMenuBar::item { background-color: transparent; padding: 4px 10px; }
-    QMenuBar::item:selected { background-color: #2980b9; }
-    QMenu {
-        background-color: white;
-        border: 1px solid #dcdcdc;
-        color: #2c3e50;
-    }
-    QMenu::item:selected {
-        background-color: #3498db;
-        color: white;
-    }
-    """)
-
+    app = QApplication(sys.argv)
+    app.setStyleSheet(light_stylesheet)  # 초기 라이트 테마 적용
+    
     win = WindowClass()
     win.show()
     sys.exit(app.exec())
