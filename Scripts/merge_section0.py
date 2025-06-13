@@ -3,7 +3,9 @@ import xml.etree.ElementTree as ET
 import parse_markdown
 from excludes import is_excluded
 
-roman_counter = 0
+roman_counter = 0            # 로마숫자용 (title2)
+sub_counter = 0              # 소제목 번호 (title3)
+current_number = 0           # 로마숫자 → 숫자값 기억
 
 def int_to_roman(n):
     vals = [
@@ -19,7 +21,7 @@ def int_to_roman(n):
     return res
 
 def merge_paragraphs_with_header(paragraph_dir: str, output_path: str, templateNum: int, markdown_text: str):
-    global roman_counter
+    global roman_counter, sub_counter, current_number
     
     # templateN_header.xml 경로 지정
     header_filename = f"template{templateNum}_header.xml"
@@ -56,15 +58,34 @@ def merge_paragraphs_with_header(paragraph_dir: str, output_path: str, templateN
         
         ns = {"hp": "http://www.hancom.co.kr/hwpml/2011/paragraph"}
 
-        # title2는 왼쪽 셀에 로마숫자 넣기
+        # --- title2: 큰 번호 증가 ---
         if style == "title2":
             roman_counter += 1
+            sub_counter = 0
+            current_number = roman_counter
             roman = int_to_roman(roman_counter)
 
             t_elements = root.findall(".//hp:t", ns)
             if len(t_elements) >= 2:
-                t_elements[0].text = roman      # 왼쪽 셀
-                t_elements[1].text = content    # 오른쪽 셀
+                t_elements[0].text = roman         # 왼쪽 셀
+                t_elements[1].text = content       # 오른쪽 셀
+
+        # --- title3: 하위 번호 붙이기 (1.1, 1.2 ...) ---
+        elif style == "title3":
+            sub_counter += 1
+            numbering = f"{sub_counter}"
+
+            # 글자가 있는 t 태그들만 따로 추림
+            t_elements = [t for t in root.findall(".//hp:t", ns) if t.text and t.text.strip()]
+
+            if len(t_elements) >= 2:
+                t_elements[0].text = numbering   # 첫 번째: 번호
+                t_elements[1].text = content     # 두 번째: 제목
+            elif len(t_elements) == 1:
+                t_elements[0].text = content
+
+
+        # --- 기타 스타일: 일반 텍스트 치환 ---
         else:
             for t in root.findall(".//hp:t", ns):
                 if not is_excluded(t.text):

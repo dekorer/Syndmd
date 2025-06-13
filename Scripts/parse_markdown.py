@@ -11,6 +11,8 @@ def parse_markdown(text: str):
         if heading_match:
             level = len(heading_match.group(1))
             content = heading_match.group(2).strip()
+            # 숫자 넘버링 제거
+            content = re.sub(r'^\s*\d+(?:\.\d+)*\.?\s*', '', content)
             results.append((f"title{level}", f"{content}"))
             continue
 
