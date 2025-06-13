@@ -1,37 +1,42 @@
 import os
 import xml.etree.ElementTree as ET
 
-def parse_and_edit_section0(unzipped_path: str, new_texts: list[str]) -> None:
-    """section0.xml을 파싱하고 텍스트 수정"""
+ET.register_namespace("hp", "http://www.hancom.co.kr/hwpml/2011/paragraph")
+
+def parse_and_edit_section0(unzipped_path: str) -> None:
     section_path = os.path.join(unzipped_path, "Contents", "section0.xml")
+    output_dir = os.path.join("paragraphs")
+    os.makedirs(output_dir, exist_ok=True)
+
+    # step 1: 헤더 텍스트 추출
+    with open(section_path, encoding="utf-8") as f:
+        xml_text = f.read()
+
+    first_p_index = xml_text.find("<hp:p")
+    if first_p_index != -1:
+        header_text = xml_text[:first_p_index]
+        header_path = os.path.join(output_dir, "header.xml")
+        with open(header_path, "w", encoding="utf-8") as f:
+            f.write(header_text)
+        print("▶ header.xml 저장 완료")
+
+    # step 2: 문단 파싱 및 텍스트 수정    
     tree = ET.parse(section_path)
     root = tree.getroot()
 
     ns = {"hp": "http://www.hancom.co.kr/hwpml/2011/paragraph"}
+    paragraphs = root.findall("hp:p", ns)
 
-    paragraphs = root.findall("hp:p", ns) # 맨 바깥쪽 문단 별로 나눔
-    count = 0
-    i = 0
-    for p in paragraphs:
-        ts = p.findall(".//hp:t", ns)
+    for idx, p in enumerate(paragraphs):
+        # linesegarray 제거
+        for segarray in p.findall(".//hp:linesegarray", ns):
+            if segarray in list(p):
+                p.remove(segarray)
 
-        # 텍스트 있는 문단인지 확인
-        for t in ts:
-            if t.text and t.text.strip():  # 공백이 아닌 실제 텍스트가 있는 경우
-                if count < len(new_texts):
-                    t.text = new_texts[count]
-                    count += 1
+        # XML 선언 없이 문단 저장
+        paragraph_str = ET.tostring(p, encoding="utf-8").decode("utf-8")
+        filename = f"paragraph_{idx}.xml"
+        with open(os.path.join(output_dir, filename), "w", encoding="utf-8") as f:
+            f.write(paragraph_str)
 
-        # paragraphs[0]을 XML 문자열로 변환
-        xml_string = ET.tostring(paragraphs[i], encoding='unicode')
-
-        # 파일로 저장
-        filename = f"paragraph_{i}.xml"
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write(xml_string)
-
-        print(f"▶ paragraphs[{i}] 저장 완료: {i}th paragraph.xml")
-        i +=1   
-
-    tree.write(section_path, encoding="utf-8", xml_declaration=True)
     print("▶ section0.xml 수정 완료")
