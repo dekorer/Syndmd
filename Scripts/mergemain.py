@@ -37,18 +37,18 @@ def build_hwp_from_template_folder(
 
 # 예시 실행
 if __name__ == "__main__":
+    templateNum = 3
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    template_unzipped_dir = os.path.join(current_dir, "template1_unzipped")
+    template_unzipped_dir = os.path.join(current_dir, f"template{templateNum}_unzipped")
     paragraph_dir = os.path.join(current_dir, "paragraphs")
     output_hwp_path = os.path.join(current_dir, "결과문서.hwp")
-    templateNum = 1
     text = """# 빈집 문제 해결을 위한 방안
 
-## 1. 빈집 문제의 개요 아ㅓ미ㅓ너나ㅓㅏㅓㅓㅏㅣ너미ㅏ러머러ㅣㅓ ㅓ리ㅑ러ㅑ러ㅑㅣ멀;ㅑㅣ머랴ㅓ리ㅑㄴ어ㅣㄹ눌우;ㄹ문ㅇ러ㅓㅏㅓ나ㅣ리미더ㅑㅣ러ㅑㅣㄴ어랴ㅣ머ㅑㅓ랴ㅓㅁ랴ㅣㅓㅣㄴ어리ㅓㅑㅁㄷ러ㅣ너이러ㅑㄴ더랴ㅣ널이러미널댜러이러ㅣㅏㅁㄴ러ㅣㅏ너ㅣ랴ㅓㅑㅣㄴ더미낭리
-최근 도시 및 농촌 지역에서 빈집 증가가 사회적 문제로 대두되고 있다. 인구 감소, 도시화, 경제적 요인 등으로 인해 방치된 빈집이 늘어나면서 안전 문제, 범죄 발생 가능성, 도시 미관 저해 등의 부작용이 발생하고 있다. 이를 해결하기 위해 다양한 방안을 모색해야 한다.
+## 1. 빈집 문제의 개요 
+최근 도시 및 농촌 지역에서 빈집 증가가 사회적 문제로 대두되고 있다. 
 
 ## 2. 빈집 문제의 주요 원인
-- 인구 감소: 저출산 및 고령화로 인해 주택 수요 감소ㅇ렁너랸머러ㅣ머리ㅓ러닝러ㅣ머ㅣ냐ㅓㅑㅓㅑㅓㅑ;ㅣ너랴ㅣ너랴니ㅓㅑㅣ리ㅑ러ㅑㅣ어ㅣㅑ너ㅑㅣ더ㅣㅑㅓㅣㅁ냐ㅣㅓ댜ㅣㅓㅑㅣ머야너랴ㅣㅓ먀ㅣㄴ더랴ㅣㅓ먀ㅣ너ㅑㅣ너ㅑㅣ러ㅣㅑ러이머;ㄹㅇ널너ㅣㄴ어랴ㅣㅓ너ㅑㅣㅓ랴ㅣㅓ냐ㅣ머냔
+- 인구 감소: 저출산 및 고령화로 인해 주택 수요 감소
 - 도시화: 지방의 인구가 대도시로 집중되면서 빈집 발생 증가
 - 경제적 요인: 부동산 경기 침체 및 주택 유지보수 비용 증가
 - 법적·행정적 문제: 소유주 부재, 상속 문제 등으로 인해 관리가 어려움

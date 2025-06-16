@@ -1,0 +1,67 @@
+<hp:p xmlns:hp="http://www.hancom.co.kr/hwpml/2011/paragraph" id="0" paraPrIDRef="13" styleIDRef="0" pageBreak="0" columnBreak="0" merged="0">
+<hp:run charPrIDRef="7">
+<hp:secPr id="" textDirection="HORIZONTAL" spaceColumns="1134" tabStop="8000" outlineShapeIDRef="0" memoShapeIDRef="0" textVerticalWidthHead="0" masterPageCnt="0">
+<hp:grid lineGrid="0" charGrid="0" wonggojiFormat="0" />
+<hp:startNum pageStartsOn="BOTH" page="0" pic="0" tbl="0" equation="0" />
+<hp:visibility hideFirstHeader="0" hideFirstFooter="0" hideFirstMasterPage="0" border="SHOW_ALL" fill="SHOW_ALL" hideFirstPageNum="0" hideFirstEmptyLine="1" showLineNumber="0" />
+<hp:lineNumberShape restartType="0" countBy="0" distance="0" startNumber="0" />
+<hp:pagePr landscape="WIDELY" width="59528" height="84188" gutterType="LEFT_ONLY">
+<hp:margin header="2836" footer="1416" gutter="0" left="4820" right="4252" top="5668" bottom="2836" />
+</hp:pagePr>
+<hp:footNotePr>
+<hp:autoNumFormat type="DIGIT" userChar="" prefixChar="" suffixChar=")" supscript="0" />
+<hp:noteLine length="-1" type="SOLID" width="0.12 mm" color="#000000" />
+<hp:noteSpacing betweenNotes="284" belowLine="568" aboveLine="852" />
+<hp:numbering type="CONTINUOUS" newNum="1" />
+<hp:placement place="EACH_COLUMN" beneathText="0" />
+</hp:footNotePr>
+<hp:endNotePr>
+<hp:autoNumFormat type="DIGIT" userChar="" prefixChar="" suffixChar=")" supscript="0" />
+<hp:noteLine length="0" type="NONE" width="0.12 mm" color="#000000" />
+<hp:noteSpacing betweenNotes="0" belowLine="576" aboveLine="864" />
+<hp:numbering type="CONTINUOUS" newNum="1" />
+<hp:placement place="END_OF_DOCUMENT" beneathText="0" />
+</hp:endNotePr>
+<hp:pageBorderFill type="BOTH" borderFillIDRef="1" textBorder="PAPER" headerInside="0" footerInside="0" fillArea="PAPER">
+<hp:offset left="1417" right="1417" top="1417" bottom="1417" />
+</hp:pageBorderFill>
+<hp:pageBorderFill type="EVEN" borderFillIDRef="1" textBorder="PAPER" headerInside="0" footerInside="0" fillArea="PAPER">
+<hp:offset left="1417" right="1417" top="1417" bottom="1417" />
+</hp:pageBorderFill>
+<hp:pageBorderFill type="ODD" borderFillIDRef="1" textBorder="PAPER" headerInside="0" footerInside="0" fillArea="PAPER">
+<hp:offset left="1417" right="1417" top="1417" bottom="1417" />
+</hp:pageBorderFill>
+</hp:secPr>
+<hp:ctrl>
+<hp:colPr id="" type="NEWSPAPER" layout="LEFT" colCount="1" sameSz="1" sameGap="0" />
+</hp:ctrl>
+</hp:run>
+<hp:run charPrIDRef="7">
+<hp:tbl id="1797365069" zOrder="0" numberingType="TABLE" textWrap="TOP_AND_BOTTOM" textFlow="BOTH_SIDES" lock="0" dropcapstyle="None" pageBreak="CELL" repeatHeader="1" rowCnt="1" colCnt="1" cellSpacing="0" borderFillIDRef="3" noAdjust="0">
+<hp:sz width="39985" widthRelTo="ABSOLUTE" height="3814" heightRelTo="ABSOLUTE" protect="0" />
+<hp:pos treatAsChar="1" affectLSpacing="0" flowWithText="1" allowOverlap="0" holdAnchorAndSO="0" vertRelTo="PARA" horzRelTo="PARA" vertAlign="TOP" horzAlign="LEFT" vertOffset="0" horzOffset="0" />
+<hp:outMargin left="283" right="283" top="283" bottom="283" />
+<hp:inMargin left="510" right="510" top="141" bottom="141" />
+<hp:tr>
+<hp:tc name="" header="0" hasMargin="0" protect="0" editable="0" dirty="0" borderFillIDRef="4">
+<hp:subList id="" textDirection="HORIZONTAL" lineWrap="BREAK" vertAlign="CENTER" linkListIDRef="0" linkListNextIDRef="0" textWidth="0" textHeight="0" hasTextRef="0" hasNumRef="0">
+<hp:p id="2147483648" paraPrIDRef="13" styleIDRef="0" pageBreak="0" columnBreak="0" merged="0">
+<hp:run charPrIDRef="7">
+<hp:t>2019년 인사운영계획</hp:t>
+</hp:run>
+<hp:run charPrIDRef="8" />
+<hp:linesegarray>
+<hp:lineseg textpos="0" vertpos="0" vertsize="3200" textheight="3200" baseline="2720" spacing="960" horzpos="0" horzsize="38964" flags="393216" />
+</hp:linesegarray>
+</hp:p>
+</hp:subList>
+<hp:cellAddr colAddr="0" rowAddr="0" />
+<hp:cellSpan colSpan="1" rowSpan="1" />
+<hp:cellSz width="39985" height="3814" />
+<hp:cellMargin left="510" right="510" top="141" bottom="141" />
+</hp:tc>
+</hp:tr>
+</hp:tbl>
+<hp:t />
+</hp:run>
+</hp:p>

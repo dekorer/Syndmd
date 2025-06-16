@@ -1,0 +1,59 @@
+<hp:p xmlns:hp="http://www.hancom.co.kr/hwpml/2011/paragraph" id="2147483648" paraPrIDRef="20" styleIDRef="0" pageBreak="0" columnBreak="0" merged="0">
+<hp:run charPrIDRef="11">
+<hp:tbl id="1797365071" zOrder="2" numberingType="TABLE" textWrap="TOP_AND_BOTTOM" textFlow="BOTH_SIDES" lock="0" dropcapstyle="None" pageBreak="CELL" repeatHeader="1" rowCnt="1" colCnt="3" cellSpacing="0" borderFillIDRef="3" noAdjust="0">
+<hp:sz width="48742" widthRelTo="ABSOLUTE" height="3032" heightRelTo="ABSOLUTE" protect="0" />
+<hp:pos treatAsChar="1" affectLSpacing="0" flowWithText="1" allowOverlap="0" holdAnchorAndSO="0" vertRelTo="PARA" horzRelTo="PARA" vertAlign="TOP" horzAlign="LEFT" vertOffset="0" horzOffset="0" />
+<hp:outMargin left="141" right="141" top="141" bottom="141" />
+<hp:inMargin left="0" right="0" top="0" bottom="0" />
+<hp:tr>
+<hp:tc name="" header="0" hasMargin="0" protect="0" editable="0" dirty="0" borderFillIDRef="6">
+<hp:subList id="" textDirection="HORIZONTAL" lineWrap="BREAK" vertAlign="CENTER" linkListIDRef="0" linkListNextIDRef="0" textWidth="0" textHeight="0" hasTextRef="0" hasNumRef="0">
+<hp:p id="2147483648" paraPrIDRef="17" styleIDRef="0" pageBreak="0" columnBreak="0" merged="0">
+<hp:run charPrIDRef="12">
+<hp:t>I</hp:t>
+</hp:run>
+<hp:linesegarray>
+<hp:lineseg textpos="0" vertpos="0" vertsize="1900" textheight="1900" baseline="1615" spacing="1140" horzpos="0" horzsize="3704" flags="393216" />
+</hp:linesegarray>
+</hp:p>
+</hp:subList>
+<hp:cellAddr colAddr="0" rowAddr="0" />
+<hp:cellSpan colSpan="1" rowSpan="1" />
+<hp:cellSz width="3705" height="3032" />
+<hp:cellMargin left="141" right="141" top="141" bottom="141" />
+</hp:tc>
+<hp:tc name="" header="0" hasMargin="0" protect="0" editable="0" dirty="0" borderFillIDRef="7">
+<hp:subList id="" textDirection="HORIZONTAL" lineWrap="BREAK" vertAlign="CENTER" linkListIDRef="0" linkListNextIDRef="0" textWidth="0" textHeight="0" hasTextRef="0" hasNumRef="0">
+<hp:p id="2147483648" paraPrIDRef="18" styleIDRef="0" pageBreak="0" columnBreak="0" merged="0">
+<hp:run charPrIDRef="13" />
+<hp:linesegarray>
+<hp:lineseg textpos="0" vertpos="0" vertsize="1900" textheight="1900" baseline="1615" spacing="1140" horzpos="0" horzsize="1440" flags="393216" />
+</hp:linesegarray>
+</hp:p>
+</hp:subList>
+<hp:cellAddr colAddr="1" rowAddr="0" />
+<hp:cellSpan colSpan="1" rowSpan="1" />
+<hp:cellSz width="566" height="3032" />
+<hp:cellMargin left="510" right="510" top="141" bottom="141" />
+</hp:tc>
+<hp:tc name="" header="0" hasMargin="0" protect="0" editable="0" dirty="0" borderFillIDRef="8">
+<hp:subList id="" textDirection="HORIZONTAL" lineWrap="BREAK" vertAlign="CENTER" linkListIDRef="0" linkListNextIDRef="0" textWidth="0" textHeight="0" hasTextRef="0" hasNumRef="0">
+<hp:p id="2147483648" paraPrIDRef="19" styleIDRef="0" pageBreak="0" columnBreak="0" merged="0">
+<hp:run charPrIDRef="13">
+<hp:t> 인사운영 방향</hp:t>
+</hp:run>
+<hp:linesegarray>
+<hp:lineseg textpos="0" vertpos="0" vertsize="1900" textheight="1900" baseline="1615" spacing="952" horzpos="0" horzsize="44468" flags="393216" />
+</hp:linesegarray>
+</hp:p>
+</hp:subList>
+<hp:cellAddr colAddr="2" rowAddr="0" />
+<hp:cellSpan colSpan="1" rowSpan="1" />
+<hp:cellSz width="44471" height="3032" />
+<hp:cellMargin left="510" right="510" top="141" bottom="141" />
+</hp:tc>
+</hp:tr>
+</hp:tbl>
+<hp:t />
+</hp:run>
+</hp:p>
