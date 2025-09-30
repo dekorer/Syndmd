@@ -1,1 +1,2 @@
 ui도 win32를 사용하게 되면서 한글 보안모듈을 설정해야함
+make_hwp.py와 hwp_converter_ui.py의 인자값을 맞춰 수정할 것
