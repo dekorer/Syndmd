@@ -1,10 +1,12 @@
+import shutil
 from typing import Dict, Optional, List, Tuple
 import xml.etree.ElementTree as ET
 import re
 import os
+import zipfile
+import win32com.client
 
 _TEXT_PATTERN = re.compile(r"[가-힣a-zA-Z0-9]")
-
 
 NS = {
     "hh": "http://www.hancom.co.kr/hwpml/2011/head",
@@ -14,6 +16,43 @@ NS = {
 }
 for prefix, uri in NS.items():
     ET.register_namespace(prefix, uri)
+    
+# 숫자/기호만으로 이뤄진 토큰(번호표기 포함) 판정
+_NUMERIC_TOKEN_RE = re.compile(
+    r"""^\s*
+        (?:                         # 대표적인 '번호' 패턴들
+            \(?\d+(?:\.\d+)*\)?\.?  # 1, 1.1, (1), (1.2), 1), 1.1. 등
+          | [\u2160-\u2188]+\.?     # Ⅰ,Ⅱ,Ⅲ … (유니코드 로마숫자)
+          | [\u2460-\u2473\u24EA\u278A-\u2793]  # ①~⑳, ⓪, ➊~➓ 등
+        )
+        \s*$""",
+    re.VERBOSE
+)
+
+# HWP->HWPX
+def convert_hwp_to_hwpx(hwp_path, hwpx_path):
+    # HWP 경로가 유효한지 확인
+    if not os.path.isfile(hwp_path):
+        raise FileNotFoundError(f"HWP 파일을 찾을 수 없습니다: {hwp_path}")
+    # 한/글 실행
+    hwp = win32com.client.gencache.EnsureDispatch("HWPFrame.HwpObject")
+
+    hwp.XHwpWindows.Item(0).Visible = True  # 옵션: 실행 창 보이기
+    # 보안 모듈 비활성화 (비밀번호 있는 문서 등)
+    hwp.RegisterModule("FilePathCheckDLL", "SecurityModule")
+    # 파일 열기
+    hwp.Open(hwp_path)
+    # 다른 이름으로 저장 (포맷 코드 51 = HWPX)
+    # HWPX 저장
+    hwp.SaveAs(hwpx_path, "HWPX")
+    # 한/글 종료
+    hwp.Quit()
+    print(f"변환 완료: {hwpx_path}")    
+    print("▶ HWPX 압축 해제 완료")
+# HWPX 압축해제
+def unzip_hwpx(hwpx_path: str, output_dir: str) -> None:
+    with zipfile.ZipFile(hwpx_path, 'r') as zip_ref:
+        zip_ref.extractall(output_dir)
 
 def makeDict_charPr_height(header_xml_path: str) -> Dict[int, int]:
     tree = ET.parse(header_xml_path)
@@ -83,7 +122,12 @@ def _leading_bullet_if_any(p: ET.Element, NS: Dict[str, str]) -> Optional[str]:
     return None if c.isalnum() else c
 
 # -------- 통합 함수: head 분리 저장 + 문단 분리 저장 + 대표 charPrID 사전 생성 --------
-def split_section0_and_extract_charids(unzipped_path: str, out_dir: str = "paragraphs") -> Dict[int, int]:
+def split_section0_and_extract_charids(unzipped_path: str,
+    out_dir: str = "paragraphs",
+    start_page: int = 1,   # ← 추가: 시작 페이지(1-based)
+    vert_tol: int = 20,    # ← 추가: vertpos '큰 폭 감소' 허용오차
+    min_reset: int = 5     # ← 추가: 0~작은값 리셋 판단 기준
+) -> Tuple[Dict[int, int], Dict[int, bool], Dict[int, Optional[str]]]:
 
     section_path = os.path.join(unzipped_path, "Contents", "section0.xml")
 
@@ -113,7 +157,48 @@ def split_section0_and_extract_charids(unzipped_path: str, out_dir: str = "parag
     root = ET.parse(section_path).getroot()
     paras = root.findall("hp:p", NS)  # 전체 탐색이 필요하면 ".//hp:p"로
 
-    # 3) 문단별 대표 charPrID 추출 + linesegarray 제거 + 분리 저장
+    HP_URI = NS["hp"]
+    LINES_TAG = f"{{{HP_URI}}}linesegarray"
+    LINE_TAG  = f"{{{HP_URI}}}lineseg"
+
+    # 3) 지정한 페이지만큼 넘김
+    def first_vertpos_top_level(p: ET.Element) -> Optional[int]:
+        # p의 '직접 자식' linesegarray 아래 첫 lineSeg.vertPos만 확인
+        for child in list(p):
+            if child.tag == LINES_TAG:
+                for seg in list(child):
+                    if seg.tag == LINE_TAG:
+                        vp = seg.attrib.get("vertpos") or seg.attrib.get("vertPos")
+                        if vp is not None:
+                            try:
+                                return int(vp)
+                            except ValueError:
+                                return None
+                return None
+        return None
+
+    page = 1
+    prev_vp: Optional[int] = None
+    start_idx: Optional[int] = None
+
+    for i, p in enumerate(paras):
+        vp = first_vertpos_top_level(p)
+        if vp is not None:
+            if prev_vp is None:
+                prev_vp = vp
+            else:
+                # 0/작은값으로 리셋되었거나, 이전보다 크게 작아지면 페이지 전환
+                if vp <= min_reset or (prev_vp - vp) > vert_tol:
+                    page += 1
+                prev_vp = vp
+
+        if page >= start_page:
+            start_idx = i
+            break
+
+    paras = paras[start_idx:] if start_idx is not None else []
+
+    # 4) 문단별 대표 charPrID 추출 + linesegarray 제거 + 분리 저장
     HP_URI = NS["hp"]
     LINES_TAG = f"{{{HP_URI}}}linesegarray"
 
@@ -200,31 +285,420 @@ def select_title_and_list_candidates_hybrid(
 
     return title_candidates, list_candidates
 
-if __name__ == "__main__":
-    # hwp->hwpx
+# HWPX로 압축
+def zip_hwpx(folder_path: str, output_hwpx_path: str) -> None:
 
-    # 압축해제
+    with zipfile.ZipFile(output_hwpx_path, "w", zipfile.ZIP_DEFLATED) as zipf:
+        for root, _, files in os.walk(folder_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                arcname = os.path.relpath(file_path, folder_path)
+                zipf.write(file_path, arcname)
+    print("▶ 수정된 HWPX 파일 압축 완료")
+# HWPX->HWP
+def convert_hwpx_to_hwp(hwpx_path, hwp_path):
+    if not os.path.isfile(hwpx_path):
+        raise FileNotFoundError(f"HWPX 파일을 찾을 수 없습니다: {hwpx_path}")
 
-    # header.xml에서 charId_글자크기 쌍 추출
-    charid_size = makeDict_charPr_height("template2_unzipped/Contents/header.xml")
-    # section0.xml 읽어 문단별 대표 글자 charPrID,
-    # 맨 앞 기호로 title감인지 list감인지 와 문단 전체 추출
-    paragraph_charId, listable_map, bullet_map = split_section0_and_extract_charids(
-        unzipped_path="template2_unzipped",
-        out_dir="0930",
+    hwp = win32com.client.gencache.EnsureDispatch("HWPFrame.HwpObject")
+    hwp.XHwpWindows.Item(0).Visible = False
+    hwp.RegisterModule("FilePathCheckDLL", "SecurityModule")
+    hwp.Open(hwpx_path)
+    hwp.SaveAs(hwp_path, "HWP")
+    hwp.Quit()
+
+    print(f"변환 완료: {hwp_path}")
+# 제목 앞의 넘버링 패턴 (1., 3.2., 2.1.1. 등) 제거
+
+def parse_and_show_markdown(md_text: str) -> List[Tuple[str, str]]:
+    """
+    주어진 마크다운 문자열을 파싱 → 제목 번호 제거 → 콘솔 출력.
+    반환값은 정리된 토큰 리스트(후속 처리용).
+    """
+    tokens = parse_markdown(md_text)
+    cleaned = clean_parsed_markdown(tokens)
+    print_parsed_markdown(cleaned)
+    return cleaned
+def parse_markdown(text: str):
+    results = []
+
+    for line in text.splitlines():
+        line = line.rstrip()
+        if line == "":
+            results.append(("blank", ""))
+            continue
+
+        # 헤더 처리: # ~ ######까지
+        heading_match = re.match(r'^(#{1,6})\s*(.+)', line)
+        if heading_match:
+            level = len(heading_match.group(1))
+            content = heading_match.group(2).strip()
+            results.append((f"title{level}", content))
+            continue
+
+        # 리스트 처리: 들여쓰기 기준으로 list1, list2...
+        list_match = re.match(r'^(\s*)([-*+])\s+(.+)', line)
+        if list_match:
+            indent_spaces = len(list_match.group(1))
+            content = list_match.group(3).strip()
+            level = indent_spaces // 2 + 1  # 들여쓰기 2칸당 한 단계
+            results.append((f"list{level}", content))
+            continue
+
+         # 해당 없음: None 처리 + 내용 그대로
+        results.append(("None", line.strip()))
+
+    return results
+def clean_parsed_markdown(tokens: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
+    cleaned: List[Tuple[str, str]] = []
+    for kind, text in tokens:
+        if kind.startswith("title"):
+            cleaned.append((kind, clean_title(text)))
+        else:
+            cleaned.append((kind, text))
+    return cleaned
+def clean_title(title: str) -> str:
+    pattern = r'''
+        ^                                           # 시작
+        (?:
+            \d+(?:\.\d+)*(?:\.)?                    # 1 / 1.1 / 1.1.1 / 1.1. (점 옵션)
+          | \(\d+(?:\.\d+)*\)                       # (1) / (1.1)
+          | \d+\)                                   # 1)
+        )
+        [\s\-–—]*                                   # 뒤 공백/대시류
+    '''
+    return re.sub(pattern, '', title, flags=re.VERBOSE)
+def print_parsed_markdown(tokens: List[Tuple[str, str]]) -> None:
+    """
+    토큰들을 간단히 정리해서 콘솔에 출력.
+    """
+    for kind, text in tokens:
+        if kind == "blank":
+            print("")  # 빈 줄 유지
+            continue
+        if kind.startswith("title"):
+            print(f"[{kind.upper()}] {text}")
+        elif kind.startswith("list"):
+            print(f"[{kind.upper()}] {text}")
+        elif kind == "None":
+            print(f"[TEXT] {text}")
+        else:
+            # 혹시 모를 확장 토큰 대비
+            print(f"[{kind}] {text}")
+
+# (이미 있다면 그대로 사용) 본문에서 선행공백/불릿 prefix 분리
+def _split_prefix(text: str) -> Tuple[str, str]:
+    if text is None:
+        return "", ""
+    s = text
+    n = len(s)
+    i = 0
+    while i < n and s[i].isspace():
+        i += 1
+    prefix = s[:i]
+    if i < n and not s[i].isalnum():
+        prefix += s[i]
+        i += 1
+        if i < n and s[i].isspace():
+            prefix += s[i]
+            i += 1
+    return prefix, s[i:]
+
+
+def __is_symbol_or_numeric_only(body: str) -> bool:
+    """
+    body(불릿/선행공백 제외 후 텍스트)가
+    - 숫자(번호표기), 혹은
+    - 특수기호만
+    으로 되어 있으면 True.
+    즉, 글자가 하나도 없는 '시각적 기호' hp:t는 지우지 않는다.
+    """
+    s = (body or "").strip()
+    if not s:
+        return False  # 완전 공백은 무시
+
+    # 1. 번호표기 (예: 1., 1.1, (2), Ⅱ, ② 등)
+    if _NUMERIC_TOKEN_RE.match(s):
+        return True
+
+    # 2. 한글/영문자가 하나라도 포함되어 있으면 False
+    if re.search(r"[가-힣a-zA-Z]", s):
+        return False
+
+    # 3. 한글/영문이 없고, 남은 게 전부 특수문자/숫자면 True
+    #    예: "-", "•", "★", "※", "→", "→→", "◆"
+    if all(not ch.isalnum() and not ch.isspace() for ch in s):
+        return True
+
+    return False
+
+def replace_paragraph_text(p: ET.Element, new_text: str) -> bool:
+    """
+    문단(<hp:p>)에서 치환 대상 hp:t를 고를 때,
+    - prefix(선행공백+불릿) 제거 후 body에 '한글/영문/숫자'가 처음 등장하되
+    - body가 '숫자/기호만'으로 구성된 경우는 제외하고 선택.
+    """
+    target_t = None
+    target_prefix = ""
+    runs = p.findall(".//{*}run")
+
+    # ✅ 대표 기준 + '숫자만' 제외
+    for run in runs:
+        for t in run.findall("./{*}t"):
+            raw = t.text or ""
+            prefix, body = _split_prefix(raw)
+            if not body.strip():
+                continue
+            # 숫자/기호만인 경우는 건너뜀 (예: "1.", "1.1", "(2)", "Ⅱ", "②" 등)
+            if __is_symbol_or_numeric_only(body):
+                continue
+            # 한/영/숫자 존재(=가시 본문)하는 첫 hp:t 선택
+            if _TEXT_PATTERN.search(body):
+                target_t = t
+                target_prefix = prefix
+                break
+        if target_t is not None:
+            break
+
+    if target_t is None:
+        return False
+
+    # 선택된 hp:t에 치환 (불릿/선행공백 보존)
+    target_t.text = f"{target_prefix}{new_text}"
+
+    # 다른 hp:t 정리: 숫자/기호만(body)인 것은 보존, 그 외는 비움
+    for run in runs:
+        for t in run.findall("./{*}t"):
+            if t is target_t:
+                continue
+            txt = t.text or ""
+            if not txt.strip():
+                continue
+            _, body = _split_prefix(txt)
+            if not __is_symbol_or_numeric_only(body):
+                t.text = ""
+
+    return True
+
+def replace_text_in_template_paragraph(template_para_path: str, new_text: str, out_path: Optional[str] = None) -> str:
+    """
+    단일 문단 템플릿 파일을 읽어 불릿 보존 + 다른 텍스트 제거 후 new_text로 교체.
+    """
+    tree = ET.parse(template_para_path)
+    p = tree.getroot()  # 루트는 <hp:p>
+
+    replace_paragraph_text(p, new_text)
+
+    xml_str = ET.tostring(p, encoding="utf-8").decode("utf-8")
+    if out_path:
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(xml_str)
+    return xml_str
+def get_section0_head_and_tail(section0_path: str) -> Tuple[str, str, str]:
+    """
+    기존 section0.xml에서:
+      - head: 첫 <hp:p> 또는 <hp10:p> '시작 태그 직전'까지
+      - tail: '마지막 </hp:p> 또는 </hp10:p> 이후'부터 문서 끝까지
+    를 문자열로 반환. 또한 실제 단락 태그 접두사('hp' 또는 'hp10')를 함께 돌려준다.
+    """
+    with open(section0_path, "r", encoding="utf-8") as f:
+        xml_text = f.read()
+
+    # 단락 시작/끝 태그 탐색 (hp/hp10 모두 대응)
+    start_match = re.search(r"<(hp10|hp):p\b", xml_text)
+    if not start_match:
+        raise RuntimeError("section0.xml에서 단락 시작(<hp:p> 또는 <hp10:p>)을 찾지 못했습니다.")
+    para_prefix = start_match.group(1)  # 'hp' 또는 'hp10'
+
+    head = xml_text[:start_match.start()]
+
+    # 마지막 종료 태그 탐색
+    end_tag_pattern = fr"</{para_prefix}:p>"
+    last_end = xml_text.rfind(end_tag_pattern)
+    if last_end == -1:
+        raise RuntimeError(f"section0.xml에서 마지막 종료 태그 {end_tag_pattern}를 찾지 못했습니다.")
+    tail = xml_text[last_end + len(end_tag_pattern):]
+
+    return head, tail, para_prefix
+
+
+def build_section0_from_tokens(
+    head_xml_str: str,
+    tail_xml_str: str,
+    paragraphs_dir: str,                  # paragraphs 저장 폴더 (paragraph_###.xml들)
+    title_pids: List[int],
+    list_pids: List[int],
+    tokens: List[Tuple[str, str]],        # (kind, text) : parse_and_show_markdown 이후 cleaned 토큰
+    output_section0_path: str,
+) -> None:
+    """
+    head를 쓰고 → 각 토큰에 맞는 템플릿 문단을 복사/치환 → tail을 써서 새로운 section0.xml을 만든다.
+    * 치환은 replace_text_in_template_paragraph()로 수행(불릿 보존 + 다른 텍스트 제거).
+    * titleN -> title_pids[N-1], listN -> list_pids[N-1], 없으면 마지막으로 폴백.
+    * 'blank'와 'None'은 스킵(원하면 나중에 일반 문단 템플릿을 확장).
+    """
+    def pick_template_pid(kind: str) -> Optional[int]:
+        if kind.startswith("title"):
+            try:
+                lvl = int(kind.replace("title", ""))
+            except ValueError:
+                lvl = 1
+            if not title_pids:
+                return None
+            idx = min(max(lvl - 1, 0), len(title_pids) - 1)
+            return title_pids[idx]
+        if kind.startswith("list"):
+            try:
+                lvl = int(kind.replace("list", ""))
+            except ValueError:
+                lvl = 1
+            if not list_pids:
+                return None
+            idx = min(max(lvl - 1, 0), len(list_pids) - 1)
+            return list_pids[idx]
+        return None  # 그 외(plain/blank)는 현재 스킵
+
+    with open(output_section0_path, "w", encoding="utf-8") as out:
+        # 1) head
+        out.write(head_xml_str)
+
+        # 2) 본문 문단들
+        for kind, text in tokens:
+            if kind in ("blank", "None"):
+                continue  # 필요 시 plain 템플릿로 확장 가능
+            pid = pick_template_pid(kind)
+            if pid is None:
+                continue
+            src_para = os.path.join(paragraphs_dir, f"paragraph_{pid:03d}.xml")
+            if not os.path.isfile(src_para):
+                continue
+            # 텍스트 치환(불릿 보존 + 나머지 텍스트 제거)
+            para_xml = replace_text_in_template_paragraph(src_para, text, out_path=None)
+            out.write(para_xml)
+
+        # 3) tail
+        out.write(tail_xml_str)
+
+
+def copy_unzipped_and_rebuild_section(
+    src_unzipped_dir: str,
+    dst_unzipped_dir: str,
+    paragraphs_dir: str,
+    title_pids: List[int],
+    list_pids: List[int],
+    tokens: List[Tuple[str, str]],
+) -> str:
+    """
+    unzipped 전체를 dst로 복사한 뒤, dst의 section0.xml만 재생성한다.
+    반환: 새로 만든 section0.xml 경로
+    """
+    # 복사본 준비(있으면 삭제 후 복사)
+    if os.path.isdir(dst_unzipped_dir):
+        shutil.rmtree(dst_unzipped_dir)
+    shutil.copytree(src_unzipped_dir, dst_unzipped_dir)
+
+    # 원본 section0.xml에서 head/tail 추출
+    src_section0 = os.path.join(src_unzipped_dir, "Contents", "section0.xml")
+    head, tail, _ = get_section0_head_and_tail(src_section0)
+
+    # 복사본에 새 section0.xml 구성
+    dst_section0 = os.path.join(dst_unzipped_dir, "Contents", "section0.xml")
+    build_section0_from_tokens(
+        head_xml_str=head,
+        tail_xml_str=tail,
+        paragraphs_dir=paragraphs_dir,
+        title_pids=title_pids,
+        list_pids=list_pids,
+        tokens=tokens,
+        output_section0_path=dst_section0,
     )
-    n, m = 4,4
+    return dst_section0
+if __name__ == "__main__":
+    # UI로 받는 부분ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    hwp_Path    = r"C:\Users\User A\Desktop\MdToHwp\MdToHwp\한글-템플릿1.hwp"
+    output_Path = r"C:\Users\User A\Desktop\mdtest"
+    startPage = 1
+    # ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+    os.makedirs(output_Path, exist_ok=True)
+
+    # 파일명 기반 파생 경로
+    base_name   = os.path.splitext(os.path.basename(hwp_Path))[0]  # '한글-템플릿n'
+    hwpx_Path   = os.path.join(output_Path, f"{base_name}.hwpx")
+    unzipped_dir = os.path.join(output_Path, f"{base_name}_unzipped")
+
+    # --- [STEP 1] HWP -> HWPX ---
+    convert_hwp_to_hwpx(hwp_Path, hwpx_Path)
+
+    # --- [STEP 2] HWPX 압축 해제(기존 폴더가 있으면 삭제 후 새로 생성) ---
+    if os.path.isdir(unzipped_dir):
+        shutil.rmtree(unzipped_dir)
+    unzip_hwpx(hwpx_Path, unzipped_dir)
+
+    # --- [STEP 3] header.xml에서 charId/height 맵 추출 ---
+    header_xml_path = os.path.join(unzipped_dir, "Contents", "header.xml")
+    charid_size = makeDict_charPr_height(header_xml_path)
+
+    # --- [STEP 4] section0.xml에서 문단 분리 + 대표 charPrID/불릿 맵 추출 ---
+    # out_dir은 분리된 문단 xml을 떨어뜨릴 작업 폴더
+    out_dir = os.path.join(output_Path, "paragraphs")
+    paragraph_charId, listable_map, bullet_map = split_section0_and_extract_charids(
+        unzipped_path=unzipped_dir,
+        out_dir=out_dir,
+        start_page=startPage   # 필요 시 조정
+    )
+
+    # --- [STEP 5] 제목/리스트 후보 선정 ---
+    n, m = 6, 6
     title_pids, list_pids = select_title_and_list_candidates_hybrid(
-    paragraph_charId, charid_size, listable_map, bullet_map, n, m
+        paragraph_charId, charid_size, listable_map, bullet_map, n, m
     )
     print("Title candidates:", title_pids)
     print("List candidates:", list_pids)
 
-    # # listable 예시 출력 (선두 특수문자로 시작한 문단만)
-    # listable_pids = [pid for pid, ok in listable_map.items() if ok]
-    # print("Listable paragraphs:", listable_pids)
+    # --- [STEP 6] 마크다운 파싱/정리/출력 (원하면 비활성화 가능) ---
+    md_path = os.path.join(output_Path, "input.md")
+    if os.path.isfile(md_path):
+        with open(md_path, "r", encoding="utf-8") as f:
+            md_text = f.read()
+    else:
+        md_text = """# 1. 제목1
+- 리스트1
 
-    # 마크다운 입력 및 파싱
+## 1.1 제목2
+- 리스트1
+  - 리스트2
+   - 리스트3
+- 리스트1
+### 2. 제목3
+- 리스트1
+"""
 
-    # 압축
-    # hwpx->hwp
+    _ = parse_and_show_markdown(md_text)
+    # --- [STEP 7] 토큰 준비(앞서 만든 parse_and_show_markdown 사용) ---
+    tokens_raw = parse_markdown(md_text)
+    tokens = clean_parsed_markdown(tokens_raw)  # title 넘버링 제거 포함
+
+    # --- [STEP 8] unzipped 작업본 생성 + section0.xml 재구성 ---
+    paragraphs_dir = out_dir  # split_section0_and_extract_charids()에서 지정했던 폴더
+    dst_unzipped_dir = os.path.join(output_Path, f"{base_name}_unzipped_built")
+
+    new_section0_path = copy_unzipped_and_rebuild_section(
+        src_unzipped_dir=unzipped_dir,
+        dst_unzipped_dir=dst_unzipped_dir,
+        paragraphs_dir=paragraphs_dir,
+        title_pids=title_pids,
+        list_pids=list_pids,
+        tokens=tokens,
+    )
+    print("Rebuilt section0.xml:", new_section0_path)
+    
+    # --- [STEP 9] 수정된 언집 폴더 → HWPX로 재압축 ---
+    built_hwpx_Path = os.path.join(output_Path, f"{base_name}_built.hwpx")
+    zip_hwpx(dst_unzipped_dir, built_hwpx_Path)
+    print("재압축 HWPX:", built_hwpx_Path)
+
+    # --- [STEP 10] HWPX → HWP 변환 ---
+    final_hwp_Path = os.path.join(output_Path, f"{base_name}_built.hwp")
+    convert_hwpx_to_hwp(built_hwpx_Path, final_hwp_Path)
+    print("최종 HWP:", final_hwp_Path)
