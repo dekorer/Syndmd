@@ -14,7 +14,7 @@ convert_tesy.py이 convert_ui에게서 받는 인자들
     4. "0"
     이렇게 받음
 
-convert_tesy.py는 연결 편하기 쉬우라고 만든 것으로 이걸 수정해서 연결하거나 없애도 됨
+convert_tesy.py는 연결 편의를 위해 만든 것으로 이걸 수정해서 연결하거나 없애도 됨
 
 
 json >> 처음 받았을 때 내용 제거하거나 삭제하고 실행할 것(오류 남, 실행하면 알아서 다시 생성)
@@ -29,4 +29,5 @@ conveter_test.py>>> 여기도 32번줄 2번째 인자 수정
 
 convert_ui.py가 메인 실행파일
 이 파일의
+
 on_conversion(self): < 이 함수가 변환 버튼 부분
