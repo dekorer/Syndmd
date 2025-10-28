@@ -1,12 +1,13 @@
-import sys
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QWidget, QFrame, QLineEdit, QSizePolicy, QVBoxLayout, QHBoxLayout, QTextEdit, QLabel, QPushButton, QDialog, QMessageBox, QToolButton
+import sys ,tempfile, time, resource_rc
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QWidget, QFrame, QLineEdit, QSizePolicy, QVBoxLayout, QHBoxLayout, QTextEdit, QLabel, QPushButton, QDialog, QMessageBox, QProgressBar, QSystemTrayIcon, QMenu
 from PySide6.QtCore import QUrl, Qt, QFile, QRegularExpression, Signal , QObject, QSize
-from PySide6.QtGui import QFont, QWheelEvent, QTextCursor, QPixmap, QIcon
+from PySide6.QtGui import QFont, QWheelEvent, QTextCursor, QPixmap, QIcon, QAction
 
 from dark_theme import dark_stylesheet
 from app_ui import Ui_MainWindow
 from find import Ui_Dialog
 from template import AddressManagerWidget
+
 
 class FindWindow(QDialog):  ## 찾기 기능
     def __init__(self, parent=None):
@@ -21,7 +22,6 @@ class FindWindow(QDialog):  ## 찾기 기능
         if hasattr(parent, 'dark_mode') and parent.dark_mode:
             from dark_theme import dark_stylesheet
             self.setStyleSheet(dark_stylesheet)
-        
 
         self.show()
 
@@ -67,9 +67,7 @@ class FindWindow(QDialog):  ## 찾기 기능
     def findnext(self):
        
         pattern = self.ui.lineEdit.text()
-        if not pattern:
-            QMessageBox.warning(self, "찾기", "찾을 내용을 입력하세요.")
-            return
+        
 
         regex = QRegularExpression(pattern)
         if self.ui.checkBox_CaseSenesitive.isChecked():
@@ -201,20 +199,70 @@ class FindWindow(QDialog):  ## 찾기 기능
             super().keyPressEvent(event)
 
 
-
 class WindowClass(QMainWindow):
     FIXED_SIZE = QSize(200, 80)
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.tmp_md_path = None
+
+        # 트레이 아이콘
+        self.tray_icon = QSystemTrayIcon(self)
+        self.tray_icon.setIcon(QIcon(":/icons/final_logo.png"))  # 기존 아이콘 사용
+        self.tray_icon.setToolTip("MDTOHWP 실행 중")
+        self.tray_icon.show()
+        
+        # 트레이 메뉴
+        tray_menu = QMenu()
+        open_action = QAction("열기", self)
+        quit_action = QAction("종료", self)
+
+        tray_menu.addAction(open_action)
+        tray_menu.addAction(quit_action)
+
+        open_action.triggered.connect(self.showNormal)
+        quit_action.triggered.connect(QApplication.quit)
+
+        self.tray_icon.setContextMenu(tray_menu)
+
+        # 더블클릭하면 창 복원
+        self.tray_icon.activated.connect(self.on_tray_activated)
+
+        self.tray_icon.show()
+
+    def on_tray_activated(self, reason):
+        if reason == QSystemTrayIcon.DoubleClick:
+            self.showNormal()
+            self.activateWindow()
 
         self.dark_mode = False #다크 모드
 
-        self.original_pixmap = QPixmap('C:/Users/alsgu/Downloads/pyside/final_logo.png')####로고사진경로
+        self.original_pixmap = QPixmap('final_logo.png')
         self.ui.logo.setAlignment(Qt.AlignCenter)
         self.update_logo_pixmap()####
         self.show()
+
+        # 프레그레스바
+        self.progress_bar = QProgressBar(self)
+        self.progress_bar.setMaximum(100)
+        self.progress_bar.setValue(0)
+        self.progress_bar.setTextVisible(True)
+        self.progress_bar.setFormat("%p%")
+        self.progress_bar.setStyleSheet("""
+            QProgressBar {
+                border: 1px solid #555;
+                border-radius: 6px;
+                text-align: center;
+                color: black;
+            }
+            QProgressBar::chunk {
+                background-color: #00aaff;
+            }
+        """)
+        self.ui.gridLayout.addWidget(self.progress_bar, 6, 0, 1, 2)  # 위치 조정
+        # 프로그레스바 연결
+        self.ui.pushButton.clicked.connect(self.start_conversion)
 
         # 메뉴·버튼 연결
         self.ui.action_open.triggered.connect(self.openFunction)
@@ -226,8 +274,6 @@ class WindowClass(QMainWindow):
         self.ui.action_zoom_in.triggered.connect(self.zoom_in)
         self.ui.action_zoom_out.triggered.connect(self.zoom_out)
         self.ui.action_8.triggered.connect(self.toggle_theme)
-        ##self.ui.gridLayout.setSpacing(0)  # 위/아래 간격 최소화
-        ## self.ui.gridLayout.setContentsMargins(0, 0, 0, 0)  # 전체 여백 최소화
 
         self.template_selec = AddressManagerWidget() 
 
@@ -239,12 +285,24 @@ class WindowClass(QMainWindow):
         target_tab.layout().addWidget(self.template_selec)  
 
         self.template_selec.status_changed.connect(self.update_template_label)
-        self.ui.template_label.setText("템플릿 미적용 중입니다.")
+        self.ui.template_label.setText("템플릿이 적용되지 않았습니다.")
+
+    #프로그레스바
+    def start_conversion(self):
+        self.ui.pushButton.setEnabled(False)  # 버튼 비활성화
+        self.progress_bar.setValue(0)
+
+        for i in range(1, 101):
+            self.progress_bar.setValue(i)
+            QApplication.processEvents()
+            time.sleep(0.02)
+
+        self.ui.pushButton.setEnabled(True)   # 버튼 다시 활성화
 
 
     def update_template_label(self, display_text):
         if display_text == "":
-            self.ui.template_label.setText("템플릿 미적용 중입니다.")
+            self.ui.template_label.setText("템플릿이 적용되지 않았습니다.")
         else :
             self.ui.template_label.setText(f"[{display_text}] 템플릿 적용 중입니다.")
 
@@ -274,12 +332,37 @@ class WindowClass(QMainWindow):
         self.ui.textEdit.setFont(font)
 
     def closeEvent(self, event):
-        ret = self.show_message_box("종료하시겠습니까? 저장되지 않거나 변환되지 않은 파일은 전부 삭제됩니다. ", QMessageBox.Question, QMessageBox.Yes | QMessageBox.No)
-        if ret == QMessageBox.Yes:
-            self.save_addresses()
-            event.accept()
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Question)
+        msg.setWindowTitle("프로그램 종료")
+        msg.setText("프로그램을 끝내거나 트레이로 보낼 수 있습니다.")
+
+        quit_button = msg.addButton("종료", QMessageBox.YesRole)
+        tray_button = msg.addButton("트레이로 최소화", QMessageBox.NoRole)
+        cancel_button = msg.addButton("취소", QMessageBox.RejectRole)
+
+        msg.exec()
+        clicked = msg.clickedButton()
+
+        if clicked == quit_button:
+            # 종료 전에 하던 작업 실행 (예: self.save_addresses())
+            try:
+                self.save_addresses()
+            except AttributeError:
+                pass  
+            event.accept()  # 완전 종료
+        elif clicked == tray_button:
+            event.ignore()
+            self.hide()
+            self.tray_icon.showMessage(
+                "MDTOHWP",
+                "프로그램이 트레이에서 계속 실행됩니다.",
+                QSystemTrayIcon.Information,
+                2000
+            )
         else:
             event.ignore()
+
 
 
     def openFunction(self):
@@ -318,10 +401,38 @@ class WindowClass(QMainWindow):
             self.ui.textEdit.setPlainText(text)
             print(f"{path} 파일을 열었습니다.")
 
-    def on_conversion(self):
-        self.show_message_box("변환 되었습니다.")
 
-    
+
+    def on_conversion(self):
+        #여기에 템플릿 파일 존재하는지 체크 해야함
+        text = self.ui.textEdit.toPlainText()
+       #import tempfile 해야 됨
+        tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".md", mode="w", encoding="utf-8")
+        tmp_file.write(text)
+        tmp_file.close()
+
+        # 경로 저장 
+        tmp_md_path = tmp_file.name
+        print(f"tmp.md 파일 저장됨 → {tmp_md_path}")####연결부분(md파일부분)
+
+        # md파일 읽어보기(없어도 됨 테스트용)
+        with open(tmp_md_path, "r", encoding="utf-8") as f:
+            content = f.read()
+            print("tmp.md 내용:\n", content)
+
+        if content == "":
+            QMessageBox.warning(self, "변환용 파일 감지 실패", "변환할 파일을 작성해주세요.")
+            return
+
+        ####여기 변환 코드 연동해야됨
+        
+        if self.ui.hwpruncheck.isChecked():
+            ### 여기에 한글파일 실행 코드 작성
+            self.show_message_box("변환 되었습니다.")
+        else:
+            self.show_message_box("변환 되었습니다.")
+
+
 # 다크모드 수정
     def toggle_theme(self):
         app = QApplication.instance()
@@ -332,9 +443,7 @@ class WindowClass(QMainWindow):
             app.setStyleSheet(dark_stylesheet)   # 다크 스타일 적용
 
         self.dark_mode = not self.dark_mode
-
-
-
+        
     
     def show_message_box(self, text, icon=QMessageBox.Information, buttons=QMessageBox.Ok):
         msgBox = QMessageBox(self)
@@ -365,6 +474,7 @@ class WindowClass(QMainWindow):
             """)
 
         return msgBox.exec()
+
 
 
 # 다크모드 해제시 스타일 시트 해제 수정
