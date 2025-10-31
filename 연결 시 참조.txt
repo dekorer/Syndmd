@@ -1,0 +1,8 @@
+convert_ui.py가 메인 실행파일
+
+
+!!!hwp_converter_ui >>> 미리보기 구현 파일로,
+13번째 줄의
+hwp.RegisterModule("FilePathCheckDLL", "SecurityModule")
+의 2번째 인자는 레지스트리에 등록한 이름으로 변경할 것 (한글 보안 모듈)
+conveter_test.py>>> 여기도 32번줄 2번째 인자 수정!!!!!
